@@ -1,0 +1,213 @@
+{# templates/album/album.html.twig #}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Bibliothèque Musicale</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+        <style>
+            body {
+                font-family: 'Poppins', sans-serif;
+                background-color: #111;
+            }
+
+            .navbar.scrolled {
+                background-color: #333;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            }
+            .navbar {
+                padding: 1rem 0;
+                position: fixed;
+                width: 100%;
+                top: 0;
+                z-index: 999;
+                background: transparent;
+                transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            }
+
+            .navbar-nav {
+                margin: 0 auto;
+            }
+
+            .navbar-nav .nav-link {
+                color: #fff;
+                margin-right: 15px;
+                position: relative;
+                padding-bottom: 5px;
+            }
+
+            .navbar-nav .nav-link.active, 
+            .navbar-nav .nav-link:hover {
+                color: #f0ad4e;
+            }
+
+            .navbar-nav .nav-link::after {
+                content: '';
+                position: absolute;
+                width: 0;
+                height: 2px;
+                background-color: #f0ad4e;
+                bottom: 0;
+                left: 50%;
+                transition: all 0.3s ease;
+            }
+
+            .navbar-nav .nav-link.active::after, 
+            .navbar-nav .nav-link:hover::after {
+                width: 100%;
+                left: 0;
+            }
+
+            .home-section {
+                height: 100vh;
+                margin-top: 3vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .navbar-nav .nav-link.active {
+                color: #f0ad4e;
+            }
+            .search-bar {
+                margin-bottom: 30px;
+            }
+            .filters {
+                display: flex;
+                gap: 15px;
+                justify-content: flex-end;
+            }
+
+            /* Albums Grid */
+            .album-grid {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 20px;
+            }
+
+            /* Card Styling */
+            .card {
+                width: 250px;
+                border-radius: 15px;
+                overflow: hidden;
+                box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+            .card:hover {
+                transform: translateY(-10px);
+                box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.15);
+            }
+            .card img {
+                height: 200px;
+                object-fit: cover;
+            }
+            .card .card-body {
+                text-align: center;
+            }
+
+            /* Responsive Styling */
+            @media (max-width: 768px) {
+                .filters {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container">
+                <a class="navbar-brand" href="{{ path('music_library') }}">Music Library</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav mx-auto"> 
+                        <li class="nav-item"><a class="nav-link" href="{{ path('artist_page') }}">Artists</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ path('album_page') }}">Albums</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ path('song_page') }}">Songs</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <section id="home" class="home-section d-flex align-items-center">
+            <div class="container">
+                <!-- Search bar and filters -->
+                <div class="row search-bar">
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" placeholder="Rechercher un album..." id="album-search">
+                    </div>
+                    <div class="col-md-6 filters">
+                        <select class="form-select me-2" id="style-filter">
+                            <option value="">Filtrer par style</option>
+                            <option value="Hip-Hop">Hip-Hop</option>
+                            <option value="Rock">Rock</option>
+                            <option value="Jazz">Jazz</option>
+                        </select>
+                        <select class="form-select" id="nationality-filter">
+                            <option value="">Filtrer par nationalité</option>
+                            <option value="American">Américain</option>
+                            <option value="French">Français</option>
+                            <option value="British">Britannique</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="album-grid" id="album-grid">
+                    {% for album in albums %}
+                    <div class="card">
+                        <img src="/media/{{ album.image }}" class="card-img-top" alt="{{ album.title }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ album.title }}</h5>
+                            <a href="{{ path('albums_details', {'artistId': album.artist.id, 'albumId': album.id}) }}" class="btn btn-primary btn-sm">Voir plus de détails</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+
+        <script>
+            // Update album grid dynamically
+            document.getElementById('album-search').addEventListener('input', updateAlbums);
+            document.getElementById('style-filter').addEventListener('change', updateAlbums);
+            document.getElementById('nationality-filter').addEventListener('change', updateAlbums);
+
+            async function updateAlbums() {
+                const searchText = document.getElementById('album-search').value;
+                const styleFilter = document.getElementById('style-filter').value;
+                const nationalityFilter = document.getElementById('nationality-filter').value;
+
+                const params = new URLSearchParams();
+                if (searchText) params.append('title', searchText);
+                if (styleFilter) params.append('style', styleFilter);
+                if (nationalityFilter) params.append('nationality', nationalityFilter);
+
+                const response = await fetch(`/api/albums?${params.toString()}`, {
+                    headers: { 'Accept': 'application/json' }
+                });
+                const data = await response.json();
+
+                const grid = document.getElementById('album-grid');
+                grid.innerHTML = '';
+                data['hydra:member'].forEach(album => {
+                    const card = `
+                        <div class="card">
+                            <img src="${album.coverImage}" class="card-img-top" alt="${album.title}">
+                            <div class="card-body">
+                                <h5 class="card-title">${album.title}</h5>
+                                <p class="card-text">${album.artist.name}</p>
+                                <a href="/albums/${album.id}" class="btn btn-primary btn-sm">Détails</a>
+                            </div>
+                        </div>
+                    `;
+                    grid.innerHTML += card;
+                });
+            }
+        </script>
+    </body>
+</html>
