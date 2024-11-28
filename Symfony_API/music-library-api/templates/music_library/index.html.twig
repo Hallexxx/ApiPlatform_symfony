@@ -104,42 +104,89 @@
             box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
         }
 
-        /* Cards */
-        .song-card {
+        /* Style commun pour les cartes */
+        .song-card, .artist-card, .album-card {
+            width: 200px; /* Taille fixe pour chaque carte */
+            height: 200px;
             border-radius: 10px;
-            overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden; /* Empêche le débordement des images */
             position: relative;
             color: white;
             display: flex;
             justify-content: center;
             align-items: flex-end;
             text-shadow: 0 1px 5px rgba(0, 0, 0, 0.7);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        .song-card img {
+
+        .song-card img, .artist-card img, .album-card img {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            z-index: -1;
-        }
-        .song-card:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            object-fit: cover; /* Ajuste l'image à la taille de la carte */
+            z-index: -1; /* Place l'image en arrière-plan */
         }
 
-        /* Scroll arrow */
+        .song-card:hover, .artist-card:hover, .album-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        /* Texte sous l'image */
+        .song-card .card-body, .artist-card .card-body, .album-card .card-body {
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.5); /* Fond semi-transparent */
+            width: 100%;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        /* Slider Containers */
+        .song-slider-container, .artist-slider-container, .album-slider-container {
+            display: flex;
+            align-items: center;
+            position: relative;
+            margin: 0 auto; /* Centre le slider */
+        }
+
+        .song-slider, .artist-slider, .album-slider {
+            display: flex;
+            gap: 20px; /* Espace entre les cartes */
+            transition: transform 0.5s ease;
+        }
+
+        /* Flèches de défilement */
         .scroll-arrow {
             cursor: pointer;
             font-size: 2rem;
             color: white;
             transition: color 0.3s ease;
         }
+
         .scroll-arrow:hover {
             color: #007bff;
         }
+
+        .scroll-arrow.left-arrow {
+            position: absolute;
+            left: 10px;
+            z-index: 10;
+        }
+
+        .scroll-arrow.right-arrow {
+            position: absolute;
+            right: 10px;
+            z-index: 10;
+        }
+
+        .scroll-arrow.d-none {
+            display: none;
+        }
+
+
 
         /* Footer */
         footer {
@@ -202,49 +249,59 @@
 
     <div class="container">
         <div class="section-title">Musique</div>
-        <div class="d-flex align-items-center mt-3">
-            <div class="flex-grow-1 d-flex flex-wrap gap-3">
+        <div class="song-slider-container">
+            <div class="scroll-arrow left-arrow d-none">&larr;</div>
+
+            <div class="song-slider d-flex">
                 {% for song in songs %}
-                    <a href="{{ path('song_details', {'artistId': song.album.artist.id, 'albumId': song.album.id, 'songId': song.id}) }}" class="text-decoration-none">
-                        <div class="song-card text-center" style="width: 200px; height: 200px;">
-                            <img src="/media/{{ song.image }}" alt="{{ song.title }}" class="img-fluid w-100 h-100">
-                            <div>{{ song.title }}</div>
+                    <a href="{{ path('song_details', {'artistId': song.album.artist.id, 'albumId': song.album.id, 'songId': song.id}) }}" class="text-decoration-none song-card">
+                        <div class="song-card text-center">
+                            <img src="/media/{{ song.image }}" alt="{{ song.title }}">
+                            <div class="card-body">{{ song.title }}</div>
                         </div>
                     </a>
                 {% endfor %}
             </div>
-            <div class="scroll-arrow ms-3">&rarr;</div>
+
+            <div class="scroll-arrow right-arrow">&rarr;</div>
         </div>
 
         <div class="section-title mt-5">Artistes</div>
-        <div class="d-flex align-items-center mt-3">
-            <div class="flex-grow-1 d-flex flex-wrap gap-3">
+        <div class="artist-slider-container">
+            <div class="scroll-arrow left-arrow d-none">&larr;</div>
+
+            <div class="artist-slider d-flex">
                 {% for artist in artists %}
-                    <a href="{{ path('artist_details', {'id': artist.id}) }}" class="text-decoration-none">
-                        <div class="song-card text-center" style="width: 200px; height: 200px;">
-                            <img src="/media/{{ artist.image }}" alt="{{ artist.name }}" class="card-img-top">
+                    <a href="{{ path('artist_details', {'id': artist.id}) }}" class="text-decoration-none artist-card">
+                        <div class="song-card text-center style="width: 200px; height: 200px;">
+                            <img src="/media/{{ artist.image }}" alt="{{ artist.name }}" class="img-fluid w-100 h-100">
                             <div class="card-body">{{ artist.name }}</div>
                         </div>
                     </a>
                 {% endfor %}
             </div>
-            <div class="scroll-arrow ms-3">&rarr;</div>
+
+            <div class="scroll-arrow right-arrow">&rarr;</div>
         </div>
 
         <div class="section-title mt-5">Albums</div>
-        <div class="d-flex align-items-center mt-3">
-            <div class="flex-grow-1 d-flex flex-wrap gap-3">
+        <div class="album-slider-container">
+            <div class="scroll-arrow left-arrow d-none">&larr;</div>
+
+            <div class="album-slider d-flex">
                 {% for album in albums %}
-                <a href="{{ path('albums_details', {'artistId': album.artist.id, 'albumId': album.id}) }}" class="text-decoration-none">
-                    <div class="song-card p-3  text-center" style="width: 200px; height: 200px;">
-                        <img src="/media/{{ album.image }}" alt="{{ album.title }}" class="img-fluid w-100 h-100">
-                        <div>{{ album.title }}</div>
-                    </div>
-                </a>
+                    <a href="{{ path('albums_details', {'artistId': album.artist.id, 'albumId': album.id}) }}" class="text-decoration-none album-card">
+                        <div class="song-card text-center">
+                            <img src="/media/{{ album.image }}" alt="{{ album.title }}">
+                            <div class="card-body">{{ album.title }}</div>
+                        </div>
+                    </a>
                 {% endfor %}
             </div>
-            <div class="scroll-arrow ms-3">&rarr;</div>
+
+            <div class="scroll-arrow right-arrow">&rarr;</div>
         </div>
+
     </div>
 
     <footer>
@@ -261,6 +318,49 @@
             } else {
                 navbar.classList.remove('scrolled');
             }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const sliders = [
+                { container: '.song-slider', leftArrow: '.song-slider-container .left-arrow', rightArrow: '.song-slider-container .right-arrow' },
+                { container: '.artist-slider', leftArrow: '.artist-slider-container .left-arrow', rightArrow: '.artist-slider-container .right-arrow' },
+                { container: '.album-slider', leftArrow: '.album-slider-container .left-arrow', rightArrow: '.album-slider-container .right-arrow' },
+            ];
+
+            sliders.forEach(({ container, leftArrow, rightArrow }) => {
+                const slider = document.querySelector(container);
+                const left = document.querySelector(leftArrow);
+                const right = document.querySelector(rightArrow);
+                const cardWidth = 220; // Largeur d'une carte + espacement (200px + 20px gap)
+                const visibleCards = 5; // Nombre de cartes visibles
+                const totalCards = slider.children.length; // Total des éléments
+                const maxScroll = totalCards - visibleCards; // Nombre total de décalages possibles
+                let scrollPosition = 0;
+
+                const updateArrows = () => {
+                    left.classList.toggle('d-none', scrollPosition === 0);
+                    right.classList.toggle('d-none', scrollPosition >= maxScroll);
+                };
+
+                right.addEventListener('click', () => {
+                    if (scrollPosition < maxScroll) {
+                        scrollPosition++;
+                        slider.style.transform = `translateX(-${scrollPosition * cardWidth}px)`;
+                        updateArrows();
+                    }
+                });
+
+                left.addEventListener('click', () => {
+                    if (scrollPosition > 0) {
+                        scrollPosition--;
+                        slider.style.transform = `translateX(-${scrollPosition * cardWidth}px)`;
+                        updateArrows();
+                    }
+                });
+
+                // Initialiser les flèches
+                updateArrows();
+            });
         });
     </script>
 </body>
