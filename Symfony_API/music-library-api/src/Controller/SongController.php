@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Song;
 use App\Service\SongService;
+use App\Service\ArtistService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -15,9 +16,10 @@ class SongController extends AbstractController
 {
     private SongService $songService;
 
-    public function __construct(SongService $songService)
+    public function __construct(SongService $songService, ArtistService $artistService)
     {
         $this->songService = $songService;
+        $this->artistService = $artistService;
     }
 
     
@@ -31,24 +33,38 @@ class SongController extends AbstractController
         ]);
     }
 
-    #[Route('/artists/{artistId}/albums/{albumId}/songs/{songId}', name: 'song_details', methods: ['GET'])]
-    public function showSongDetails(int $artistId, int $albumId, int $songId): Response
+    #[Route('/artists/{artistId}/albums/{albumIndex}/songs/{songIndex}', name: 'song_details', methods: ['GET'])]
+    public function showSongDetails(int $artistId, int $albumIndex, int $songIndex): Response
     {
         try {
-            $song = $this->songService->getSongById($songId);
-            if ($song->getAlbum()->getId() !== $albumId || $song->getAlbum()->getArtist()->getId() !== $artistId) {
-                throw $this->createNotFoundException('Mismatch between IDs provided in URL and song data.');
+            $artist = $this->artistService->getArtistWithAlbumsAndSongs($artistId);
+            if (!$artist) {
+                throw $this->createNotFoundException('Artist not found.');
             }
+            $albums = $artist->getAlbums();
+            if (!isset($albums[$albumIndex - 1])) {
+                throw $this->createNotFoundException('Album not found at the specified index.');
+            }
+            $album = $albums[$albumIndex - 1];
+
+            $songs = $album->getSongs();
+            if (!isset($songs[$songIndex - 1])) {
+                throw $this->createNotFoundException('Song not found at the specified index.');
+            }
+            $song = $songs[$songIndex - 1];
+
         } catch (\Exception $e) {
             return $this->json(['error' => $e->getMessage()], Response::HTTP_NOT_FOUND);
         }
 
         return $this->render('song/song_details.html.twig', [
             'song' => $song,
-            'album' => $song->getAlbum(),
-            'artist' => $song->getAlbum()->getArtist(),
+            'album' => $album,
+            'artist' => $artist,
         ]);
     }
+
+
 
 
 

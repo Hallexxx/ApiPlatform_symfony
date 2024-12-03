@@ -8,6 +8,11 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Doctrine\Orm\Filter\RangeFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+
 
 #[ORM\Entity(repositoryClass: ArtistRepository::class)]
 #[ApiResource(
@@ -16,11 +21,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
     paginationEnabled: true
 )]
 #[ApiFilter(SearchFilter::class, properties: [
-    'name' => 'partial', 
-    'style' => 'partial', 
-    'nationality' => 'partial'
+    'name' => 'partial',
+    'style' => 'partial',
+    'nationality' => 'partial',
 ])]
 #[ApiFilter(RangeFilter::class, properties: ['birthDate'])]
+
 class Artist
 {
     #[ORM\Id]

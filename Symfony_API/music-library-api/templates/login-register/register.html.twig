@@ -1,0 +1,58 @@
+{# templates/register.html.twig #}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register</title>
+</head>
+<body>
+    <h1>Create Account</h1>
+    <form method="POST" action="/register">
+        <label for="email">Email:</label>
+        <input type="email" name="email" required><br>
+
+        <label for="username">Username:</label>
+        <input type="text" name="username" required><br>
+
+        <label for="password">Password:</label>
+        <input type="password" name="password" required><br>
+
+        <button type="submit">Register</button>
+    </form>
+
+    <script>
+        document.querySelector('form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(event.target);
+            const data = {
+                email: formData.get('email'),
+                username: formData.get('username'),
+                password: formData.get('password')
+            };
+
+            fetch('/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data.token) {
+                    // Vous pouvez stocker le token et rediriger l'utilisateur si nécessaire
+                    localStorage.setItem('jwt_token', data.token);
+                    window.location.href = '/';
+                } else {
+                    console.error('Registration failed:', data);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+
+</body>
+</html>

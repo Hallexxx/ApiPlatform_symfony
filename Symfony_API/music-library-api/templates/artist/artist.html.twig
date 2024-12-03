@@ -61,8 +61,7 @@
             }
 
             .home-section {
-                height: 100vh;
-                margin-top: 3vh;
+                margin-top: 15vh;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -93,6 +92,7 @@
                 width: 250px;
                 border-radius: 15px;
                 overflow: hidden;
+                border: none;
                 box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
                 transition: transform 0.3s ease, box-shadow 0.3s ease;
             }
@@ -173,7 +173,6 @@
         </section>
 
         <script>
-            // Update artist grid dynamically
             document.getElementById('artist-search').addEventListener('input', updateArtists);
             document.getElementById('style-filter').addEventListener('change', updateArtists);
             document.getElementById('nationality-filter').addEventListener('change', updateArtists);
@@ -188,27 +187,39 @@
                 if (styleFilter) params.append('style', styleFilter);
                 if (nationalityFilter) params.append('nationality', nationalityFilter);
 
-                const response = await fetch(`/api/artists?${params.toString()}`, {
-                    headers: { 'Accept': 'application/json' }
-                });
-                const data = await response.json();
+                try {
+                    const response = await fetch(window.location.origin + `/api/artists?${params.toString()}`, {
+                        headers: { 'Accept': 'application/json' }
+                    });
 
-                const grid = document.getElementById('artist-grid');
-                grid.innerHTML = '';
-                data['hydra:member'].forEach(artist => {
-                    const card = `
-                        <div class="card">
-                            <img src="${artist.image}" class="card-img-top" alt="${artist.name}">
-                            <div class="card-body">
-                                <h5 class="card-title">${artist.name}</h5>
-                                <p class="card-text">${artist.style}</p>
-                                <a href="/artists/${artist.id}" class="btn btn-primary btn-sm">Détails</a>
-                            </div>
-                        </div>
-                    `;
-                    grid.innerHTML += card;
-                });
+
+                    const data = await response.json();
+
+                    if (Array.isArray(data['hydra:member'])) {
+                        const grid = document.getElementById('artist-grid');
+                        grid.innerHTML = ''; // Clear the current grid
+
+                        data['hydra:member'].forEach(artist => {
+                            const card = `
+                                <div class="card">
+                                    <img src="${artist.image}" class="card-img-top" alt="${artist.name}">
+                                    <div class="card-body">
+                                        <h5 class="card-title">${artist.name}</h5>
+                                        <p class="card-text">${artist.style}</p>
+                                        <a href="/artists/${artist.id}" class="btn btn-primary btn-sm">Détails</a>
+                                    </div>
+                                </div>
+                            `;
+                            grid.innerHTML += card;
+                        });
+                    } else {
+                        console.error('Réponse invalide: "hydra:member" est manquant ou pas un tableau.');
+                    }
+                } catch (error) {
+                    console.error('Erreur lors de la récupération des artistes:', error);
+                }
             }
+
         </script>
     </body>
 </html>

@@ -241,28 +241,41 @@
                         </ul>
                     </div>
 
-                    <!-- Albums Section -->
                     <div id="albumsContent" class="albums-content">
                         <h4>Albums</h4>
                         <div class="albums-grid">
                             {% for album in artist.albums %}
+                                {% set albumIndex = loop.index %} {# Index relatif de l'album #}
                                 <div>
-                                    <img src="/media/{{ album.image }}" alt="{{ album.title }}">
-                                    <span>{{ album.title }}</span>
+                                    <a href="{{ path('albums_details', {
+                                        'artistId': artist.id,
+                                        'albumIndex': albumIndex
+                                    }) }}">
+                                        <img src="/media/{{ album.image }}" alt="{{ album.title }}">
+                                        <span>{{ album.title }}</span>
+                                    </a>
                                 </div>
                             {% endfor %}
                         </div>
                     </div>
 
-                    <!-- Songs Section -->
+
                     <div id="songsContent" class="songs-content">
                         <h4>Chansons</h4>
                         <div class="songs-grid">
                             {% for album in artist.albums %}
+                                {% set albumIndex = loop.index %} {# Index relatif de l'album #}
                                 {% for song in album.songs %}
+                                    {% set songIndex = loop.index %} {# Index relatif de la chanson dans l'album #}
                                     <div>
-                                        <img src="/media/{{ song.image }}" alt="{{ song.title }}">
-                                        <span>{{ song.title }}</span>
+                                        <a href="{{ path('song_details', {
+                                            'artistId': artist.id,
+                                            'albumIndex': albumIndex,
+                                            'songIndex': songIndex
+                                        }) }}">
+                                            <img src="/media/{{ song.image }}" alt="{{ song.title }}">
+                                            <span>{{ song.title }}</span>
+                                        </a>
                                     </div>
                                 {% endfor %}
                             {% endfor %}

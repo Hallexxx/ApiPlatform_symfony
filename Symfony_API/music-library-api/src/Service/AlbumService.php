@@ -38,6 +38,12 @@ class AlbumService
         return $album;
     }
 
+    public function getAllAlbumsWithArtistsAndSongs(): array
+    {
+        return $this->albumRepository->findAllWithArtistsAndSongs();
+    }
+
+
     /**
      * Récupère un album avec ses chansons et son artiste.
      */

@@ -237,14 +237,20 @@
                         </ul>
                     </div>
 
-                    <!-- Songs Section -->
-                    <div id="songsContent" class="songs-content">
+                   <div id="songsContent" class="songs-content">
                         <h4>Songs</h4>
                         <div class="songs-grid">
                             {% for song in album.songs %}
+                                {% set songIndex = loop.index %}
                                 <div>
-                                    <img src="/media/{{ song.image }}" alt="{{ song.title }}">
-                                    <span>{{ song.title }}</span>
+                                    <a href="{{ path('song_details', {
+                                        'artistId': album.artist.id,
+                                        'albumIndex': albumIndex,
+                                        'songIndex': songIndex
+                                    }) }}">
+                                        <img src="/media/{{ song.image }}" alt="{{ song.title }}">
+                                        <span>{{ song.title }}</span>
+                                    </a>
                                 </div>
                             {% endfor %}
                         </div>

@@ -61,8 +61,7 @@
             }
 
             .home-section {
-                height: 100vh;
-                margin-top: 3vh;
+                margin-top: 15vh;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -93,6 +92,7 @@
                 width: 250px;
                 border-radius: 15px;
                 overflow: hidden;
+                border: none;
                 box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
                 transition: transform 0.3s ease, box-shadow 0.3s ease;
             }
@@ -158,14 +158,19 @@
                 </div>
 
                 <div class="album-grid" id="album-grid">
-                    {% for album in albums %}
-                    <div class="card">
-                        <img src="/media/{{ album.image }}" class="card-img-top" alt="{{ album.title }}">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ album.title }}</h5>
-                            <a href="{{ path('albums_details', {'artistId': album.artist.id, 'albumId': album.id}) }}" class="btn btn-primary btn-sm">Voir plus de détails</a>
-                        </div>
-                    </div>
+                    {% for artistId, albums in albumsWithIndexes %}
+                        {% for album in albums %}
+                            {% set albumIndex = loop.index %}
+                            <div class="card">
+                                <img src="/media/{{ album.image }}" class="card-img-top" alt="{{ album.title }}">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ album.title }}</h5>
+                                    <a href="{{ path('albums_details', { 'artistId': album.artist.id, 'albumIndex': albumIndex }) }}" class="btn btn-primary btn-sm">
+                                        Voir plus de détails
+                                    </a>
+                                </div>
+                            </div>
+                        {% endfor %}
                     {% endfor %}
                 </div>
             </div>
