@@ -19,12 +19,6 @@ class AlbumController extends AbstractController
         $this->artistService = $artistService;  
     }
 
-    /**
-     * Affiche la liste de tous les albums.
-     *
-     * @Route('/albums', name: 'album_list', methods: ['GET'])
-     */
-
     #[Route('/albums', name: 'album_page', methods: ['GET'])]
     public function listAlbums(Request $request): Response
     {
@@ -33,7 +27,7 @@ class AlbumController extends AbstractController
             $date = $request->query->get('date', ''); 
             $artistName = $request->query->get('artist', ''); 
             
-            $albums = $this->albumService->getAllAlbums();
+            $albums = $this->albumService->getAllAlbumsWithArtistsAndSongs();
 
             if (empty($albums)) {
                 throw $this->createNotFoundException('Aucun album trouvé.');

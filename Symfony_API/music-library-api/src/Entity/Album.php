@@ -14,6 +14,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use ApiPlatform\Doctrine\Orm\Filter\RangeFilter;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Delete;
 
 
 #[ORM\Entity(repositoryClass: AlbumRepository::class)]
@@ -25,10 +29,22 @@ use ApiPlatform\Metadata\Get;
             uriTemplate: '/artists/{artistId}/albums/{albumIndex}',
             name: 'get_album'
         ),
-        new Get(
+        new GetCollection(
             uriTemplate: '/albums',
             name: 'get_albums'
-        )
+        ),
+        new Post(
+            uriTemplate: '/artists/{artistId}/albums',
+            name: 'create_album'
+        ),
+        new Put(
+            uriTemplate: '/artists/{artistId}/albums/{albumIndex}',
+            name: 'update_album'
+        ),
+        new Delete(
+            uriTemplate: '/artists/{artistId}/albums/{albumIndex}',
+            name: 'delete_album'
+        ),
     ]
 )]
 

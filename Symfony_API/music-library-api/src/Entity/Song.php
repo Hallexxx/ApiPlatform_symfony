@@ -16,6 +16,7 @@ use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\CollectionOperations;
+use ApiPlatform\Metadata\GetCollection;
 /**
  * Represents a song in the music library.
  */
@@ -28,9 +29,21 @@ use ApiPlatform\Metadata\CollectionOperations;
             uriTemplate: '/artists/{artistId}/albums/{albumIndex}/songs/{songIndex}',
             name: 'get_song'
         ),
-        new Get(
+        new GetCollection(
             uriTemplate: '/songs',
             name: 'get_songs'
+        ),
+        new Post(
+            uriTemplate: '/artists/{artistId}/albums/{albumIndex}/songs',
+            name: 'create_song'
+        ),
+        new Put(
+            uriTemplate: '/artists/{artistId}/albums/{albumIndex}/songs/{songIndex}',
+            name: 'update_song'
+        ),
+        new Delete(
+            uriTemplate: '/artists/{artistId}/albums/{albumIndex}/songs/{songIndex}',
+            name: 'delete_song'
         ),
     ],
     filters: ['song.duration', 'song.artist', 'song.name']

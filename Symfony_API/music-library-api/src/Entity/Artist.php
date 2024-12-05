@@ -14,6 +14,10 @@ use ApiPlatform\Doctrine\Orm\Filter\RangeFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Delete;
 
 #[ORM\Entity(repositoryClass: ArtistRepository::class)]
 #[ApiResource(
@@ -25,9 +29,21 @@ use ApiPlatform\Metadata\Get;
             uriTemplate: '/artists/{id}',
             name: 'get_artist'
         ),
-        new Get(
+        new GetCollection(
             uriTemplate: '/artists',
             name: 'get_artists'
+        ),
+        new Post(
+            uriTemplate: '/artists',
+            name: 'create_artist'
+        ),
+        new Put(
+            uriTemplate: '/artists/{id}',
+            name: 'update_artist'
+        ),
+        new Delete(
+            uriTemplate: '/artists/{id}',
+            name: 'delete_artist'
         ),
     ]
 ),
