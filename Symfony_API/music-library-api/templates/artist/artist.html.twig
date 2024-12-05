@@ -142,21 +142,24 @@
                         <input type="text" class="form-control" placeholder="Rechercher un artiste..." id="artist-search">
                     </div>
                     <div class="col-md-6 filters">
-                        <select class="form-select me-2" id="style-filter">
-                            <option value="">Filtrer par style</option>
-                            <option value="Hip-Hop">Hip-Hop</option>
-                            <option value="Rock">Rock</option>
-                            <option value="Jazz">Jazz</option>
-                        </select>
-                        <select class="form-select" id="nationality-filter">
-                            <option value="">Filtrer par nationalité</option>
-                            <option value="American">Américain</option>
-                            <option value="French">Français</option>
-                            <option value="British">Britannique</option>
-                        </select>
+                        <form method="GET" action="{{ path('artist_page') }}">
+                            <select class="form-select me-2" name="style" id="style-filter">
+                                <option value="">Filtrer par style</option>
+                                <option value="Hip-Hop">Hip-Hop</option>
+                                <option value="Rock">Rock</option>
+                                <option value="Jazz">Jazz</option>
+                            </select>
+                            <select class="form-select" name="nationality" id="nationality-filter">
+                                <option value="">Filtrer par nationalité</option>
+                                <option value="American">Américain</option>
+                                <option value="French">Français</option>
+                                <option value="British">Britannique</option>
+                            </select>
+                            <button type="submit">Filtrer</button>
+                        </form>
                     </div>
                 </div>
-
+                
                 <div class="artist-grid" id="artist-grid">
                     {% for artist in artists %}
                     <div class="card">
@@ -171,55 +174,5 @@
                 </div>
             </div>
         </section>
-
-        <script>
-            document.getElementById('artist-search').addEventListener('input', updateArtists);
-            document.getElementById('style-filter').addEventListener('change', updateArtists);
-            document.getElementById('nationality-filter').addEventListener('change', updateArtists);
-
-            async function updateArtists() {
-                const searchText = document.getElementById('artist-search').value;
-                const styleFilter = document.getElementById('style-filter').value;
-                const nationalityFilter = document.getElementById('nationality-filter').value;
-
-                const params = new URLSearchParams();
-                if (searchText) params.append('name', searchText);
-                if (styleFilter) params.append('style', styleFilter);
-                if (nationalityFilter) params.append('nationality', nationalityFilter);
-
-                try {
-                    const response = await fetch(window.location.origin + `/api/artists?${params.toString()}`, {
-                        headers: { 'Accept': 'application/json' }
-                    });
-
-
-                    const data = await response.json();
-
-                    if (Array.isArray(data['hydra:member'])) {
-                        const grid = document.getElementById('artist-grid');
-                        grid.innerHTML = ''; // Clear the current grid
-
-                        data['hydra:member'].forEach(artist => {
-                            const card = `
-                                <div class="card">
-                                    <img src="${artist.image}" class="card-img-top" alt="${artist.name}">
-                                    <div class="card-body">
-                                        <h5 class="card-title">${artist.name}</h5>
-                                        <p class="card-text">${artist.style}</p>
-                                        <a href="/artists/${artist.id}" class="btn btn-primary btn-sm">Détails</a>
-                                    </div>
-                                </div>
-                            `;
-                            grid.innerHTML += card;
-                        });
-                    } else {
-                        console.error('Réponse invalide: "hydra:member" est manquant ou pas un tableau.');
-                    }
-                } catch (error) {
-                    console.error('Erreur lors de la récupération des artistes:', error);
-                }
-            }
-
-        </script>
     </body>
 </html>

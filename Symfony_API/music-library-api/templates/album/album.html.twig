@@ -136,24 +136,28 @@
 
         <section id="home" class="home-section d-flex align-items-center">
             <div class="container">
-                <!-- Search bar and filters -->
                 <div class="row search-bar">
-                    <div class="col-md-6">
-                        <input type="text" class="form-control" placeholder="Rechercher un album..." id="album-search">
+                    <!-- Barre de recherche -->
+                    <div class="col-md-6 d-flex justify-content-center">
+                        <form method="get" action="{{ path('album_page') }}" class="w-100">
+                            <input type="text" name="search" class="form-control" placeholder="Rechercher un album..." value="{{ search }}">
+                        </form>
                     </div>
-                    <div class="col-md-6 filters">
-                        <select class="form-select me-2" id="style-filter">
-                            <option value="">Filtrer par style</option>
-                            <option value="Hip-Hop">Hip-Hop</option>
-                            <option value="Rock">Rock</option>
-                            <option value="Jazz">Jazz</option>
-                        </select>
-                        <select class="form-select" id="nationality-filter">
-                            <option value="">Filtrer par nationalité</option>
-                            <option value="American">Américain</option>
-                            <option value="French">Français</option>
-                            <option value="British">Britannique</option>
-                        </select>
+
+                    <!-- Filtres -->
+                    <div class="col-md-6 d-flex justify-content-end">
+                        <form method="get" action="{{ path('album_page') }}" class="d-flex gap-2">
+                            <input type="date" class="form-control" name="date" id="date-filter" value="{{ date }}" placeholder="Date">
+                            <select class="form-select" name="artist" id="artist-filter">
+                                <option value="">recherche votre Artiste</option>
+                                {% for artist in artists %}
+                                    <option value="{{ artist.id }}" {% if artist.id == selectedArtist %}selected{% endif %}>
+                                        {{ artist.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="btn btn-primary">Filtrer</button>
+                        </form>
                     </div>
                 </div>
 
@@ -175,44 +179,6 @@
                 </div>
             </div>
         </section>
-
-        <script>
-            // Update album grid dynamically
-            document.getElementById('album-search').addEventListener('input', updateAlbums);
-            document.getElementById('style-filter').addEventListener('change', updateAlbums);
-            document.getElementById('nationality-filter').addEventListener('change', updateAlbums);
-
-            async function updateAlbums() {
-                const searchText = document.getElementById('album-search').value;
-                const styleFilter = document.getElementById('style-filter').value;
-                const nationalityFilter = document.getElementById('nationality-filter').value;
-
-                const params = new URLSearchParams();
-                if (searchText) params.append('title', searchText);
-                if (styleFilter) params.append('style', styleFilter);
-                if (nationalityFilter) params.append('nationality', nationalityFilter);
-
-                const response = await fetch(`/api/albums?${params.toString()}`, {
-                    headers: { 'Accept': 'application/json' }
-                });
-                const data = await response.json();
-
-                const grid = document.getElementById('album-grid');
-                grid.innerHTML = '';
-                data['hydra:member'].forEach(album => {
-                    const card = `
-                        <div class="card">
-                            <img src="${album.coverImage}" class="card-img-top" alt="${album.title}">
-                            <div class="card-body">
-                                <h5 class="card-title">${album.title}</h5>
-                                <p class="card-text">${album.artist.name}</p>
-                                <a href="/albums/${album.id}" class="btn btn-primary btn-sm">Détails</a>
-                            </div>
-                        </div>
-                    `;
-                    grid.innerHTML += card;
-                });
-            }
-        </script>
+        
     </body>
 </html>

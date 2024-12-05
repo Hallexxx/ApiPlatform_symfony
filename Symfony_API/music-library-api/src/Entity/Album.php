@@ -11,13 +11,30 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Doctrine\Orm\Filter\RangeFilter;
+use ApiPlatform\Metadata\Operation;
+use ApiPlatform\Metadata\Get;
 
-/**
- * Represents a music album.
- */
+
 #[ORM\Entity(repositoryClass: AlbumRepository::class)]
-#[ApiResource] // Expose l'entité via l'API.
-#[ApiFilter(SearchFilter::class, properties: ['title' => 'partial', 'date' => 'exact'])]
+#[ApiResource(
+    normalizationContext: ['groups' => ['album:read']],
+    denormalizationContext: ['groups' => ['album:write']],
+    operations: [
+        new Get(
+            uriTemplate: '/artists/{artistId}/albums/{albumIndex}',
+            name: 'get_album'
+        ),
+        new Get(
+            uriTemplate: '/albums',
+            name: 'get_albums'
+        )
+    ]
+)]
+
+
+#[ApiFilter(RangeFilter::class, properties: ['date'])] // Filtrage par plage de dates
+
 class Album
 {
     /**

@@ -12,14 +12,26 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Doctrine\Orm\Filter\RangeFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
-
+use ApiPlatform\Metadata\Operation;
+use ApiPlatform\Metadata\Get;
 
 #[ORM\Entity(repositoryClass: ArtistRepository::class)]
 #[ApiResource(
     normalizationContext: ['groups' => ['artist:read']],
     denormalizationContext: ['groups' => ['artist:write']],
-    paginationEnabled: true
-)]
+    paginationEnabled: true,
+    operations: [
+        new Get(
+            uriTemplate: '/artists/{id}',
+            name: 'get_artist'
+        ),
+        new Get(
+            uriTemplate: '/artists',
+            name: 'get_artists'
+        ),
+    ]
+),
+]
 #[ApiFilter(SearchFilter::class, properties: [
     'name' => 'partial',
     'style' => 'partial',

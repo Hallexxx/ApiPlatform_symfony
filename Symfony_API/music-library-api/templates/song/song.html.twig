@@ -158,14 +158,27 @@
                 </div>
 
                 <div class="song-grid" id="song-grid">
-                    {% for song in songs %}
-                    <div class="card">
-                        <img src="/media/{{ song.image }}" class="card-img-top" alt="{{ song.title }}">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ song.title }}</h5>
-                            <a href="{{ path('song_details', {'artistId': song.album.artist.id, 'albumId': song.album.id, 'songId': song.id}) }}" class="btn btn-primary btn-sm">Voir plus de détails</a>
-                        </div>
-                    </div>
+                    {% for artist in artists %}
+                        {% for album in artist.albums %}
+                            {% set albumIndex = loop.index %} {# Index des albums pour cet artiste spécifique #}
+                            {% for song in album.songs %}
+                                {% set songIndex = loop.index %} 
+                                    <div class="card">
+                                        <img src="/media/{{ song.image }}" class="card-img-top" alt="{{ song.title }}">
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ song.title }}</h5>
+                                            <a href="{{ path('song_details', {
+                                                'artistId': artist.id,
+                                                'albumIndex': albumIndex,
+                                                'songIndex': songIndex
+                                            }) }}" class="btn btn-primary btn-sm">
+                                            Voir plus de détails
+                                            </a>
+                                        </div>
+                                    </div>
+                                </a>
+                            {% endfor %}
+                        {% endfor %}
                     {% endfor %}
                 </div>
             </div>

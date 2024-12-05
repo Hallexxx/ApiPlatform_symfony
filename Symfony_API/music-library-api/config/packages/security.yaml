@@ -10,9 +10,6 @@ security:
                 property: email
 
     firewalls:
-        dev:
-            pattern: ^/_(profiler|wdt)
-            security: false
         main:
             stateless: true
             provider: users
@@ -23,8 +20,17 @@ security:
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
             jwt: ~
-
+            
     access_control:
-        - { path: ^/auth, roles: PUBLIC_ACCESS }
-        - { path: ^/register, roles: PUBLIC_ACCESS }
-        - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/auth, roles: PUBLIC_ACCESS }  # Route d'authentification
+        - { path: ^/register, roles: PUBLIC_ACCESS }  # Route d'inscription
+        - { path: ^/login, roles: PUBLIC_ACCESS }
+        - { path: ^/$, roles: PUBLIC_ACCESS } 
+        - { path: ^/api/$, roles: PUBLIC_ACCESS }
+        - { path: ^/docs, roles: PUBLIC_ACCESS }
+        - {path: ^/api/artists/\d+/albums/\d+/songs/\d+$,roles: IS_AUTHENTICATED_FULLY,}
+        - { path: ^/api/, roles: IS_AUTHENTICATED_FULLY }
+        
+
+
+

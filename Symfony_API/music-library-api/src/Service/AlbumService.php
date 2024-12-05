@@ -43,6 +43,26 @@ class AlbumService
         return $this->albumRepository->findAllWithArtistsAndSongs();
     }
 
+    public function getFilteredAlbums(string $search = '', string $date = '', string $artistName = ''): array
+    {
+        $qb = $this->albumRepository->createQueryBuilder('a')
+            ->join('a.artist', 'artist')
+            ->where('a.title LIKE :search')
+            ->setParameter('search', '%' . $search . '%');
+
+        if ($date) {
+            $qb->andWhere('a.date = :date')
+            ->setParameter('date', $date);
+        }
+
+        if ($artistName) {
+            $qb->andWhere('artist.name LIKE :artistName')
+            ->setParameter('artistName', '%' . trim($artistName) . '%');  // Ajout de trim pour éviter les espaces superflus
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
 
     /**
      * Récupère un album avec ses chansons et son artiste.

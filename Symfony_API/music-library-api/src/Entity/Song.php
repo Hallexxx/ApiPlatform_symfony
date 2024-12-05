@@ -9,7 +9,13 @@ use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Doctrine\Orm\Filter\RangeFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use Symfony\Component\Serializer\Annotation\Groups;
-
+use ApiPlatform\Metadata\Operation;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\CollectionOperations;
 /**
  * Represents a song in the music library.
  */
@@ -17,10 +23,20 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ApiResource(
     normalizationContext: ['groups' => ['song:read']],
     denormalizationContext: ['groups' => ['song:write']],
-    paginationEnabled: true
+    operations: [
+        new Get(
+            uriTemplate: '/artists/{artistId}/albums/{albumIndex}/songs/{songIndex}',
+            name: 'get_song'
+        ),
+        new Get(
+            uriTemplate: '/songs',
+            name: 'get_songs'
+        ),
+    ],
+    filters: ['song.duration', 'song.artist', 'song.name']
 )]
-#[ApiFilter(SearchFilter::class, properties: ['title' => 'partial'])]
-#[ApiFilter(RangeFilter::class, properties: ['length'])]
+#[ApiFilter(RangeFilter::class, properties: ['duration'])]
+#[ApiFilter(SearchFilter::class, properties: ['artist' => 'exact', 'name' => 'partial'])]
 class Song
 {
     #[ORM\Id]

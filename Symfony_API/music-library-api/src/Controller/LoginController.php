@@ -7,65 +7,62 @@ use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class LoginController extends AbstractController
 {
     private $jwtTokenManager;
     private $passwordHasher;
     private $entityManager;
+    private $session;
+    private $requestStack;
 
     public function __construct(
-        JWTTokenManagerInterface $jwtTokenManager, 
-        UserPasswordHasherInterface $passwordHasher, 
-        EntityManagerInterface $entityManager
+        JWTTokenManagerInterface $jwtTokenManager,
+        UserPasswordHasherInterface $passwordHasher,
+        EntityManagerInterface $entityManager,
+        RequestStack $requestStack,
     ) {
         $this->jwtTokenManager = $jwtTokenManager;
         $this->passwordHasher = $passwordHasher;
         $this->entityManager = $entityManager;
+        $this->requestStack = $requestStack;
     }
 
     #[Route('/login', name: 'login', methods: ['POST'])]
-    public function api_login(Request $request, UserPasswordHasherInterface $passwordHasher, TokenStorageInterface $tokenStorage, ManagerRegistry $doctrine): JsonResponse
-    {
-        if ($this->getUser()) {
-            return $this->json([
-                'message' => 'Vous êtes déjà connecté.'
-            ], JsonResponse::HTTP_FORBIDDEN);
+    public function login(
+        Request $request,
+        JWTTokenManagerInterface $jwtTokenManager
+    ): Response {
+        $session = $this->requestStack->getSession(); // Récupération de la session via RequestStack
+
+        // Récupérer les données du formulaire
+        $email = $request->request->get('email');
+        $password = $request->request->get('password');
+
+        if (!$email || !$password) {
+            return new JsonResponse(['error' => 'Email and password are required'], Response::HTTP_BAD_REQUEST);
         }
 
-        $email = $request->get('email');
-        $password = $request->get('password');
+        $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
 
-        $user = $doctrine->getRepository(User::class)
-            ->findOneBy(['email' => $email]);
-
-        if (!$user) {
-            return $this->json([
-                'message' => 'Identifiants invalides (Email)'
-            ], JsonResponse::HTTP_UNAUTHORIZED);
+        if (!$user || !$this->passwordHasher->isPasswordValid($user, $password)) {
+            return new JsonResponse(['error' => 'Invalid credentials'], Response::HTTP_UNAUTHORIZED);
         }
 
-        if (!$passwordHasher->isPasswordValid($user, $password)) {
-            return $this->json([
-                'message' => 'Identifiants invalides (Mot de passe)'
-            ], JsonResponse::HTTP_UNAUTHORIZED);
-        }
+        // Créer un token JWT
+        $token = $jwtTokenManager->create($user);
 
+        $session->clear(); // Cette ligne efface toutes les données dans la session
+        $session->set('auth_token', $token);
+        $session->set('user_id', $user->getId());
 
-        $jwt = $this->jwtManager->create($user);
-
-        $session = $this->requestStack->getSession();
-
-        $session->set('token', $jwt);
-        $session->set('username', $user->getUsername());
-
-        return $this->json([
-            'message' => 'Connecté avec succès. User ID: ' . $user->getId(),
-            'token'=> $jwt
-        ], JsonResponse::HTTP_OK);
+        return $this->redirectToRoute('music_library');
     }
 
 
@@ -74,4 +71,17 @@ class LoginController extends AbstractController
     {
         return $this->render('login-register/login.html.twig');
     }
+
+    #[Route('/session-debug', name: 'session_debug')]
+    public function sessionDebug(): JsonResponse
+    {
+        $session = $this->requestStack->getSession(); // Utilisation de RequestStack pour obtenir la session
+
+        return new JsonResponse([
+            'user_id' => $session->get('user_id'),
+            'username' => $session->get('username'),
+            'token' => $session->get('auth_token'),
+        ]);
+    }
+
 }
