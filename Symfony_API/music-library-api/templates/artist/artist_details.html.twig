@@ -1,5 +1,3 @@
-{# templates/artist/artist_details.html.twig #}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -220,7 +218,6 @@
                     </div>
                 </div>
 
-                <!-- Info, Albums, and Songs -->
                 <div class="col-lg-6 d-flex flex-column justify-content-center info-container">
                     <div class="song-controls">
                         <button id="infoButton" class="btn btn-primary">Info</button>
@@ -228,7 +225,6 @@
                         <button id="songsButton" class="btn btn-secondary">Songs</button>
                     </div>
 
-                    <!-- Info Section -->
                     <div id="infoContent" class="info-content active-content">
                         <h4>Informations</h4>
                         <ul>
@@ -245,7 +241,7 @@
                         <h4>Albums</h4>
                         <div class="albums-grid">
                             {% for album in artist.albums %}
-                                {% set albumIndex = loop.index %} {# Index relatif de l'album #}
+                                {% set albumIndex = loop.index %} 
                                 <div>
                                     <a href="{{ path('albums_details', {
                                         'artistId': artist.id,
@@ -264,9 +260,9 @@
                         <h4>Chansons</h4>
                         <div class="songs-grid">
                             {% for album in artist.albums %}
-                                {% set albumIndex = loop.index %} {# Index relatif de l'album #}
+                                {% set albumIndex = loop.index %} 
                                 {% for song in album.songs %}
-                                    {% set songIndex = loop.index %} {# Index relatif de la chanson dans l'album #}
+                                    {% set songIndex = loop.index %} 
                                     <div>
                                         <a href="{{ path('song_details', {
                                             'artistId': artist.id,
@@ -287,7 +283,6 @@
     </section>
 
     <script>
-        // Toggle sections
         const infoButton = document.getElementById('infoButton');
         const albumsButton = document.getElementById('albumsButton');
         const songsButton = document.getElementById('songsButton');

@@ -9,9 +9,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * Handles song-specific operations.
- */
 class SongController extends AbstractController
 {
     private SongService $songService;
@@ -26,15 +23,13 @@ class SongController extends AbstractController
     #[Route('/songs', name: 'song_page', methods: ['GET'])]
     public function listSongs(): Response
     {
-        // Récupère toutes les chansons (ajuste selon ton modèle)
         $songs = $this->songService->getAllSongs();
 
-        // Récupère également les artistes, albums et autres données nécessaires
         $artists = $this->artistService->getAllArtists();
 
         return $this->render('song/song.html.twig', [
             'songs' => $songs,
-            'artists' => $artists, // Assure-toi que 'artists' est transmis
+            'artists' => $artists, 
         ]);
     }
 
@@ -69,11 +64,6 @@ class SongController extends AbstractController
             'artist' => $artist,
         ]);
     }
-
-
-
-
-
 
     /**
      * Deletes a specific song.

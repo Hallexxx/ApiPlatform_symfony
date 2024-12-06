@@ -79,12 +79,10 @@ class Song
     #[Groups(['song:read', 'song:write'])]
     private ?string $fileUrl = null;
 
-    // Nouveau champ image pour l'image de la chanson
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['song:read', 'song:write'])]
     private ?string $image = null;
 
-    // Nouveau champ lyrics pour les paroles de la chanson
     #[ORM\Column(type: "text", nullable: true)]
     #[Groups(['song:read', 'song:write'])]
     private ?string $lyrics = null;
@@ -120,14 +118,14 @@ class Song
 
     public function getLengthInMinutes(): ?string
     {
-        if ($this->length === null) { // Assurez-vous que $length est utilisé
+        if ($this->length === null) { 
             return null;
         }
 
-        $minutes = floor($this->length / 60); // Durée en minutes
-        $seconds = $this->length % 60;       // Reste des secondes
+        $minutes = floor($this->length / 60);
+        $seconds = $this->length % 60;       
 
-        return sprintf('%d:%02d', $minutes, $seconds); // Format "MM:SS"
+        return sprintf('%d:%02d', $minutes, $seconds); 
     }
 
     public function getAlbum(): ?Album
@@ -162,8 +160,6 @@ class Song
         $this->fileUrl = $fileUrl;
         return $this;
     }
-
-    // Getter et setter pour l'image
     public function getImage(): ?string
     {
         return $this->image;
@@ -175,7 +171,6 @@ class Song
         return $this;
     }
 
-    // Getter et setter pour les paroles
     public function getLyrics(): ?string
     {
         return $this->lyrics;

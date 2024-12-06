@@ -39,9 +39,8 @@ class LoginController extends AbstractController
         Request $request,
         JWTTokenManagerInterface $jwtTokenManager
     ): Response {
-        $session = $this->requestStack->getSession(); // Récupération de la session via RequestStack
-
-        // Récupérer les données du formulaire
+        $session = $this->requestStack->getSession(); 
+        
         $email = $request->request->get('email');
         $password = $request->request->get('password');
 
@@ -55,10 +54,9 @@ class LoginController extends AbstractController
             return new JsonResponse(['error' => 'Invalid credentials'], Response::HTTP_UNAUTHORIZED);
         }
 
-        // Créer un token JWT
         $token = $jwtTokenManager->create($user);
 
-        $session->clear(); // Cette ligne efface toutes les données dans la session
+        $session->clear(); 
         $session->set('auth_token', $token);
         $session->set('user_id', $user->getId());
 
@@ -75,7 +73,7 @@ class LoginController extends AbstractController
     #[Route('/session-debug', name: 'session_debug')]
     public function sessionDebug(): JsonResponse
     {
-        $session = $this->requestStack->getSession(); // Utilisation de RequestStack pour obtenir la session
+        $session = $this->requestStack->getSession(); 
 
         return new JsonResponse([
             'user_id' => $session->get('user_id'),

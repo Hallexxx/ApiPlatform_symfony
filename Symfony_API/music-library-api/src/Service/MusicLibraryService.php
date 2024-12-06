@@ -29,14 +29,12 @@ class MusicLibraryService
 
     public function getAllAlbums(): array
     {
-        // Exemple : Filtrer les albums récents
         $albums = $this->albumRepository->findAll();
         return $albums;
     }
 
     public function getAllArtists(): array
     {
-        // Exemple : Renvoyer uniquement les artistes ayant publié au moins un album
         $artists = $this->artistRepository->findAll();
         return $artists;
     }

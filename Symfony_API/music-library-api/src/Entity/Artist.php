@@ -211,7 +211,6 @@ class Artist
     public function removeAlbum(Album $album): self
     {
         if ($this->albums->removeElement($album)) {
-            // Set the owning side to null (unless already changed)
             if ($album->getArtist() === $this) {
                 $album->setArtist(null);
             }

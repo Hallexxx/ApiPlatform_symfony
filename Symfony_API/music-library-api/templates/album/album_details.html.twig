@@ -1,5 +1,3 @@
-{# templates/album/album_details.html.twig #}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -212,7 +210,6 @@
     <section id="home" class="home-section d-flex align-items-center">
         <div class="container">
             <div class="row">
-                <!-- Image section -->
                 <div class="col-md-6 text-center image-container">
                     <img src="/media/{{ album.image }}" alt="{{ album.title }}" class="album-image">
                     <div class="album-info">
@@ -220,14 +217,12 @@
                     </div>
                 </div>
 
-                <!-- Info and Songs -->
                 <div class="col-lg-6 d-flex flex-column justify-content-center info-container">
                     <div class="song-controls">
                         <button id="infoButton" class="btn btn-primary">Info</button>
                         <button id="songsButton" class="btn btn-secondary">Songs</button>
                     </div>
 
-                    <!-- Info Section -->
                     <div id="infoContent" class="info-content active-content">
                         <h4>Album Information</h4>
                         <ul>
@@ -261,7 +256,6 @@
     </section>
 
     <script>
-        // Toggle sections
         const infoButton = document.getElementById('infoButton');
         const songsButton = document.getElementById('songsButton');
 

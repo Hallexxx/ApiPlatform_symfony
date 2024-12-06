@@ -23,9 +23,9 @@ class SongRepository extends ServiceEntityRepository
     public function findAllWithAlbumAndArtist(): array
     {
         return $this->createQueryBuilder('s')
-        ->leftJoin('s.album', 'a') // Jointure avec l'album
-        ->leftJoin('a.artist', 'ar') // Jointure avec l'artiste de l'album
-        ->addSelect('a', 'ar') // Inclure les données de l'album et de l'artiste
+        ->leftJoin('s.album', 'a')
+        ->leftJoin('a.artist', 'ar') 
+        ->addSelect('a', 'ar') 
         ->getQuery()
         ->getResult();
     }
@@ -33,12 +33,12 @@ class SongRepository extends ServiceEntityRepository
     public function findOneWithAlbumAndArtist(int $id): ?Song
     {
         return $this->createQueryBuilder('s')
-            ->leftJoin('s.album', 'a') // Jointure avec l'album
-            ->leftJoin('a.artist', 'ar') // Jointure avec l'artiste
-            ->addSelect('a', 'ar') // Inclure les données de l'album et de l'artiste
-            ->where('s.id = :id') // Filtrer par ID de la chanson
+            ->leftJoin('s.album', 'a') 
+            ->leftJoin('a.artist', 'ar') 
+            ->addSelect('a', 'ar') 
+            ->where('s.id = :id') 
             ->setParameter('id', $id)
             ->getQuery()
-            ->getOneOrNullResult(); // Retourne une chanson ou null
+            ->getOneOrNullResult(); 
     }
 }

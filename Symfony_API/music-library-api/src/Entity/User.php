@@ -48,11 +48,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Favoris::class, cascade: ['persist', 'remove'])]
     #[Groups(['user:read'])]
-    private Collection $favories;  // Renommé de favorites à favories
+    private Collection $favories;  
 
     public function __construct()
     {
-        $this->favories = new ArrayCollection();  // Initialisation avec favories
+        $this->favories = new ArrayCollection();  
     }
 
     public function getId(): ?int
@@ -78,7 +78,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getRoles(): array
     {
-        // Ensure the user always has at least ROLE_USER.
         $roles = $this->roles;
         if (!in_array('ROLE_USER', $roles, true)) {
             $roles[] = 'ROLE_USER';
@@ -128,7 +127,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getFavories(): Collection
     {
-        return $this->favories;  // Renommé en favories
+        return $this->favories; 
     }
 
     public function addFavori(Favoris $favori): self
@@ -144,7 +143,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeFavori(Favoris $favori): self
     {
         if ($this->favories->removeElement($favori)) {
-            // Set the owning side to null (unless already changed)
             if ($favori->getUser() === $this) {
                 $favori->setUser(null);
             }
@@ -152,11 +150,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
-
-    public function eraseCredentials(): void
-    {
-        // Clear sensitive temporary data here, if any.
-    }
+    
 
     public function __toString(): string
     {

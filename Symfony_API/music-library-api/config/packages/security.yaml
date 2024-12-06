@@ -22,8 +22,8 @@ security:
             jwt: ~
             
     access_control:
-        - { path: ^/auth, roles: PUBLIC_ACCESS }  # Route d'authentification
-        - { path: ^/register, roles: PUBLIC_ACCESS }  # Route d'inscription
+        - { path: ^/auth, roles: PUBLIC_ACCESS } 
+        - { path: ^/register, roles: PUBLIC_ACCESS }  
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/$, roles: PUBLIC_ACCESS } 
         - { path: ^/api/$, roles: PUBLIC_ACCESS }

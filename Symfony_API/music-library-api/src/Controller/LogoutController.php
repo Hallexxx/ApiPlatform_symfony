@@ -1,6 +1,5 @@
 <?php
 
-// src/Controller/LogoutController.php
 namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\RedirectResponse;

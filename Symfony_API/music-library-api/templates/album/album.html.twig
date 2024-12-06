@@ -1,4 +1,3 @@
-{# templates/album/album.html.twig #}
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -79,7 +78,6 @@
                 justify-content: flex-end;
             }
 
-            /* Albums Grid */
             .album-grid {
                 display: flex;
                 flex-wrap: wrap;
@@ -137,14 +135,12 @@
         <section id="home" class="home-section d-flex align-items-center">
             <div class="container">
                 <div class="row search-bar">
-                    <!-- Barre de recherche -->
                     <div class="col-md-6 d-flex justify-content-center">
                         <form method="get" action="{{ path('album_page') }}" class="w-100">
                             <input type="text" name="search" class="form-control" placeholder="Rechercher un album..." value="{{ search }}">
                         </form>
                     </div>
 
-                    <!-- Filtres -->
                     <div class="col-md-6 d-flex justify-content-end">
                         <form method="get" action="{{ path('album_page') }}" class="d-flex gap-2">
                             <input type="date" class="form-control" name="date" id="date-filter" value="{{ date }}" placeholder="Date">
@@ -164,6 +160,9 @@
                 <div class="album-grid" id="album-grid">
                     {% for artistId, albums in albumsWithIndexes %}
                         {% for album in albums %}
+                            {% if artistId != album.artist.id %}
+                                {% set artistId = album.artist.id %}
+                            {% endif %}
                             {% set albumIndex = loop.index %}
                             <div class="card">
                                 <img src="/media/{{ album.image }}" class="card-img-top" alt="{{ album.title }}">

@@ -79,7 +79,6 @@
                 justify-content: flex-end;
             }
 
-            /* Songs Grid */
             .song-grid {
                 display: flex;
                 flex-wrap: wrap;
@@ -87,7 +86,6 @@
                 gap: 20px;
             }
 
-            /* Card Styling */
             .card {
                 width: 250px;
                 border: none;
@@ -108,7 +106,6 @@
                 text-align: center;
             }
 
-            /* Responsive Styling */
             @media (max-width: 768px) {
                 .filters {
                     flex-direction: column;
@@ -136,7 +133,6 @@
 
         <section id="home" class="home-section d-flex align-items-center">
             <div class="container">
-                <!-- Search bar and filters -->
                 <div class="row search-bar">
                     <div class="col-md-6">
                         <input type="text" class="form-control" placeholder="Rechercher une chanson..." id="song-search">
@@ -160,7 +156,7 @@
                 <div class="song-grid" id="song-grid">
                     {% for artist in artists %}
                         {% for album in artist.albums %}
-                            {% set albumIndex = loop.index %} {# Index des albums pour cet artiste spécifique #}
+                            {% set albumIndex = loop.index %} 
                             {% for song in album.songs %}
                                 {% set songIndex = loop.index %} 
                                     <div class="card">
@@ -185,7 +181,6 @@
         </section>
 
         <script>
-            // Update song grid dynamically
             document.getElementById('song-search').addEventListener('input', updateSongs);
             document.getElementById('style-filter').addEventListener('change', updateSongs);
             document.getElementById('nationality-filter').addEventListener('change', updateSongs);

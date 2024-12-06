@@ -15,17 +15,11 @@ class AlbumService
         $this->albumRepository = $albumRepository;
     }
 
-    /**
-     * Récupère tous les albums.
-     */
     public function getAllAlbums(): array
     {
-        return $this->albumRepository->findAll();  // Utilisation du repository pour récupérer les albums
+        return $this->albumRepository->findAll();  
     }
 
-    /**
-     * Crée un album.
-     */
     public function createAlbum(string $title, \DateTimeInterface $date, Artist $artist): Album
     {
         $album = new Album();
@@ -33,8 +27,7 @@ class AlbumService
               ->setDate($date)
               ->setArtist($artist);
 
-        // Persiste l'album
-        $this->albumRepository->save($album); // Sauvegarde dans la base de données via le repository
+        $this->albumRepository->save($album); 
         return $album;
     }
 
@@ -57,18 +50,14 @@ class AlbumService
 
         if ($artistName) {
             $qb->andWhere('artist.name LIKE :artistName')
-            ->setParameter('artistName', '%' . trim($artistName) . '%');  // Ajout de trim pour éviter les espaces superflus
+            ->setParameter('artistName', '%' . trim($artistName) . '%');  
         }
 
         return $qb->getQuery()->getResult();
     }
 
-
-    /**
-     * Récupère un album avec ses chansons et son artiste.
-     */
     public function getAlbumDetails(int $id): ?Album
     {
-        return $this->albumRepository->findWithSongsAndArtist($id);  // Méthode spécifique pour récupérer album avec ses chansons
+        return $this->albumRepository->findWithSongsAndArtist($id);  
     }
 }

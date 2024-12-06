@@ -33,7 +33,6 @@ class AlbumController extends AbstractController
                 throw $this->createNotFoundException('Aucun album trouvé.');
             }
 
-            // Organiser les albums par artiste
             $albumsWithIndexes = [];
             $artists = [];
             foreach ($albums as $album) {
@@ -66,7 +65,6 @@ class AlbumController extends AbstractController
     public function showAlbumDetails(int $artistId, int $albumIndex): Response
     {
         try {
-            // Récupérer l'artiste avec ses albums
             $artist = $this->artistService->getArtistWithAlbums($artistId);
             
             if (!$artist) {
@@ -75,7 +73,6 @@ class AlbumController extends AbstractController
 
             $albums = $artist->getAlbums(); 
             
-            // Vérifier si l'album existe à l'index demandé
             if (!isset($albums[$albumIndex - 1])) {
                 throw $this->createNotFoundException('Album not found at the specified index.');
             }
@@ -86,7 +83,6 @@ class AlbumController extends AbstractController
             return $this->json(['error' => $e->getMessage()], Response::HTTP_NOT_FOUND);
         }
 
-        // Rendre la vue du détail de l'album
         return $this->render('album/album_details.html.twig', [
             'album' => $album,
             'artist' => $artist,

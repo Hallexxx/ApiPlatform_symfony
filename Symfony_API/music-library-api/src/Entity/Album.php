@@ -53,40 +53,26 @@ use ApiPlatform\Metadata\Delete;
 
 class Album
 {
-    /**
-     * The unique identifier of the album.
-     */
+    
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     #[Groups(['song:read', 'album:read'])]
     private ?int $id = null;
 
-    /**
-     * The title of the album.
-     */
     #[ORM\Column(length: 255)]
     #[Groups(['song:read', 'album:read'])]
     private ?string $title = null;
 
-    /**
-     * The release date of the album.
-     */
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     #[Groups(['album:read'])]
     private ?\DateTimeInterface $date = null;
 
-    /**
-     * The artist who created the album.
-     */
     #[ORM\ManyToOne(targetEntity: Artist::class, inversedBy: 'albums')]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['album:read'])]
     private ?Artist $artist = null;
 
-    /**
-     * The image of the album.
-     */
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['album:read'])]
     private ?string $image = null;
@@ -98,9 +84,6 @@ class Album
     #[Groups(['album:read'])]
     private Collection $songs;
 
-    /**
-     * Constructor.
-     */
     public function __construct()
     {
         $this->songs = new ArrayCollection();
@@ -171,9 +154,6 @@ class Album
         return $this->songs;
     }
 
-    /**
-     * Add a song to the album.
-     */
     public function addSong(Song $song): static
     {
         if (!$this->songs->contains($song)) {
@@ -184,9 +164,6 @@ class Album
         return $this;
     }
 
-    /**
-     * Remove a song from the album.
-     */
     public function removeSong(Song $song): static
     {
         if ($this->songs->removeElement($song)) {
