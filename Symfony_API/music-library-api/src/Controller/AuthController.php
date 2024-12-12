@@ -33,7 +33,6 @@ class AuthController extends AbstractController
         ValidatorInterface $validator,
         EntityManagerInterface $entityManager
     ): Response {
-        // Récupérer les données du formulaire
         $email = $request->request->get('email');
         $username = $request->request->get('username');
         $password = $request->request->get('password');
@@ -57,10 +56,8 @@ class AuthController extends AbstractController
         $entityManager->persist($user);
         $entityManager->flush();
 
-        // Générez un token JWT pour l'utilisateur
         $token = $this->jwtTokenManager->create($user);
 
-        // Redirigez vers la page d'accueil avec le token
         return $this->redirectToRoute('music_library', [
             'token' => $token,
         ]);
