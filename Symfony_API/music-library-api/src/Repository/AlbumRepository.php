@@ -37,4 +37,18 @@ class AlbumRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();  
     }
+
+    public function findLimitedAlbums(int $limit = 10): array
+    {
+        $albums = $this->createQueryBuilder('a')
+            ->leftJoin('a.artist', 'ar')
+            ->addSelect('ar')
+            ->leftJoin('a.songs', 's')
+            ->addSelect('s')
+            ->getQuery()
+            ->getResult();
+
+        shuffle($albums);
+        return array_slice($albums, 0, $limit);
+    }
 }

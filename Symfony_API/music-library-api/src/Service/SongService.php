@@ -42,6 +42,35 @@ class SongService
         usort($songs, fn($a, $b) => strcmp($a->getTitle(), $b->getTitle()));
         return $songs;
     }
+
+    public function getLimitedSongs(int $limit = 10): array
+    {
+        $songs = $this->songRepository->findLimitedSongs($limit);
+        usort($songs, fn($a, $b) => strcmp($a->getTitle(), $b->getTitle()));
+
+        $limitedSongsData = [];
+        foreach ($songs as $song) {
+            $album = $song->getAlbum();
+            $artist = $album->getArtist();
+
+            $albums = $artist->getAlbums()->toArray();
+            $albumIndex = array_search($album, $albums);
+            $albumIndex = $albumIndex !== false ? $albumIndex + 1 : 1;
+
+            $songsInAlbum = $album->getSongs()->toArray();
+            $songIndex = array_search($song, $songsInAlbum);
+            $songIndex = $songIndex !== false ? $songIndex + 1 : 1;
+
+            $limitedSongsData[] = [
+                'song'      => $song,
+                'artistId'  => $artist->getId(),
+                'albumIndex'=> $albumIndex,
+                'songIndex' => $songIndex,
+            ];
+        }
+        return $limitedSongsData;
+    }
+
     
     /**
      * Create a new song.

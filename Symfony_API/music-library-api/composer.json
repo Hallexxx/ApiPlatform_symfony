@@ -9,6 +9,7 @@
         "ext-iconv": "*",
         "api-platform/doctrine-orm": "^4.0",
         "api-platform/symfony": "^4.0",
+        "beberlei/doctrineextensions": "^1.5",
         "doctrine/annotations": "*",
         "doctrine/dbal": "^4.2",
         "doctrine/doctrine-bundle": "^2.13",

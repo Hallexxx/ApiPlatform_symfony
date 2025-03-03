@@ -41,4 +41,17 @@ class SongRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult(); 
     }
+
+    public function findLimitedSongs(int $limit = 10): array
+    {
+        return $this->createQueryBuilder('s')
+            ->leftJoin('s.album', 'a')
+            ->leftJoin('a.artist', 'ar')
+            ->addSelect('a, ar')
+            ->orderBy('RAND()')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
 }

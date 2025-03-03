@@ -34,37 +34,37 @@ class LoginController extends AbstractController
         $this->requestStack = $requestStack;
     }
 
-    #[Route('/login', name: 'login', methods: ['POST'])]
-    public function login(
-        Request $request,
-        JWTTokenManagerInterface $jwtTokenManager
-    ): Response {
-        $session = $this->requestStack->getSession(); 
+    // #[Route('/login', name: 'login', methods: ['POST'])]
+    // public function login(
+    //     Request $request,
+    //     JWTTokenManagerInterface $jwtTokenManager
+    // ): Response {
+    //     $session = $this->requestStack->getSession(); 
         
-        $email = $request->request->get('email');
-        $password = $request->request->get('password');
+    //     $email = $request->request->get('email');
+    //     $password = $request->request->get('password');
 
-        if (!$email || !$password) {
-            return new JsonResponse(['error' => 'Email and password are required'], Response::HTTP_BAD_REQUEST);
-        }
+    //     if (!$email || !$password) {
+    //         return new JsonResponse(['error' => 'Email and password are required'], Response::HTTP_BAD_REQUEST);
+    //     }
 
-        $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
+    //     $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
 
-        if (!$user || !$this->passwordHasher->isPasswordValid($user, $password)) {
-            return new JsonResponse(['error' => 'Invalid credentials'], Response::HTTP_UNAUTHORIZED);
-        }
+    //     if (!$user || !$this->passwordHasher->isPasswordValid($user, $password)) {
+    //         return new JsonResponse(['error' => 'Invalid credentials'], Response::HTTP_UNAUTHORIZED);
+    //     }
 
-        $token = $jwtTokenManager->create($user);
+    //     $token = $jwtTokenManager->create($user);
 
-        $session->clear(); 
-        $session->set('auth_token', $token);
-        $session->set('user_id', $user->getId());
+    //     $session->clear(); 
+    //     $session->set('auth_token', $token);
+    //     $session->set('user_id', $user->getId());
 
-        return $this->redirectToRoute('music_library');
-    }
+    //     return $this->redirectToRoute('music_library');
+    // }
 
 
-    #[Route('/login/form', name: 'login_form')]
+    #[Route('/login', name: 'login_form')]
     public function showLoginForm()
     {
         return $this->render('login-register/login.html.twig');

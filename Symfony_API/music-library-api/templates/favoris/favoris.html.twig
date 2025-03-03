@@ -1,0 +1,44 @@
+<h1>Vos Favoris</h1>
+<div class="container">
+    <h2>Song Favoris</h2>
+    <div class="row">
+        {% for fav in favorites if fav.song_id %}
+        <div class="col-md-3">
+            <div class="card">
+                <img src="/images/{{ fav.song_image }}" class="card-img-top" alt="{{ fav.song_title }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ fav.song_title }}</h5>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <h2>Album Favoris</h2>
+    <div class="row">
+        {% for fav in favorites if fav.album_id %}
+        <div class="col-md-3">
+            <div class="card">
+                <img src="/images/{{ fav.album_image }}" class="card-img-top" alt="{{ fav.album_title }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ fav.album_title }}</h5>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <h2>Artist Favoris</h2>
+    <div class="row">
+        {% for fav in favorites if fav.artist_id %}
+        <div class="col-md-3">
+            <div class="card">
+                <img src="/images/{{ fav.artist_image }}" class="card-img-top" alt="{{ fav.artist_name }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ fav.artist_name }}</h5>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>

@@ -4,6 +4,8 @@
 namespace App\Controller;
 
 use App\Service\MusicLibraryService;
+use App\Service\SongService;
+use App\Service\AlbumService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -24,32 +26,30 @@ class MusicLibraryController extends AbstractController
     }
 
     #[Route('/', name: 'music_library')]
-    public function index(SessionInterface $session): Response
-    {
+    public function index(
+        SessionInterface $session, 
+        SongService $songService, 
+        AlbumService $albumService
+    ): Response {
         $token = $session->get('auth_token');
         $userId = $session->get('user_id');
-        
-        $isAuthenticated = $token !== null && $userId !== null;
 
-        $user = $this->entityManager->getRepository(User::class)->find($userId);
-        
-        if (!$user || !$token) {
-            return $this->redirectToRoute('login_form');
-        }
+        $user = $userId !== null ? $this->entityManager->getRepository(User::class)->find($userId) : null;
+        $isAuthenticated = $token !== null && $user !== null;
 
-        $songs = $this->musicLibraryService->getAllSongs();
-        $albums = $this->musicLibraryService->getAllAlbums();
         $artists = $this->musicLibraryService->getAllArtists();
 
+        $limitedSongsData = $songService->getLimitedSongs(10);
+
+        $limitedAlbumsData = $albumService->getLimitedAlbums(10);
+
         return $this->render('music_library/index.html.twig', [
-            'songs' => $songs,
-            'albums' => $albums,
-            'artists' => $artists,
-            'is_authenticated' => $isAuthenticated,
-            'username' => $user->getUsername(),
+            'limitedSongsData'  => $limitedSongsData,
+            'limitedAlbumsData' => $limitedAlbumsData,
+            'artists'           => $artists,
+            'is_authenticated'  => $isAuthenticated,
+            'username'          => $user ? $user->getUsername() : null,
         ]);
     }
 
-
 }
-

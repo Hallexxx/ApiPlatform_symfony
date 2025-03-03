@@ -20,6 +20,26 @@ class AlbumService
         return $this->albumRepository->findAll();  
     }
 
+    public function getLimitedAlbums(int $limit = 10): array
+    {
+        $albums = $this->albumRepository->findLimitedAlbums($limit);
+        $limitedAlbumsData = [];
+
+        foreach ($albums as $album) {
+            $artist = $album->getArtist();
+            $artistAlbums = $artist->getAlbums()->toArray();
+            $albumIndex = array_search($album, $artistAlbums);
+            $albumIndex = $albumIndex !== false ? $albumIndex + 1 : 1;
+
+            $limitedAlbumsData[] = [
+                'album'     => $album,
+                'artistId'  => $artist->getId(),
+                'albumIndex'=> $albumIndex,
+            ];
+        }
+        return $limitedAlbumsData;
+    }
+
     public function createAlbum(string $title, \DateTimeInterface $date, Artist $artist): Album
     {
         $album = new Album();

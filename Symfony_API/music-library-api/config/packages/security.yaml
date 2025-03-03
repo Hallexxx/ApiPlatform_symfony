@@ -11,7 +11,7 @@ security:
 
     firewalls:
         main:
-            stateless: true
+            stateless: false
             provider: users
             json_login:
                 check_path: /auth
