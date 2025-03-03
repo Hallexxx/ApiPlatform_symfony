@@ -65,9 +65,10 @@ class Artist
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
-    #[Assert\Length(max: 255)]
-    #[Groups(['artist:read', 'artist:write'])]
+    #[Groups(['artist:read', 'song:read'])]
+    #[MaxDepth(1)]
     private ?string $name = null;
+
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]

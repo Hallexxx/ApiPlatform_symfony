@@ -22,7 +22,7 @@ use ApiPlatform\Metadata\GetCollection;
  */
 #[ORM\Entity(repositoryClass: SongRepository::class)]
 #[ApiResource(
-    normalizationContext: ['groups' => ['song:read']],
+    normalizationContext: ['groups' => ['song:read', 'album:read', 'artist:read']],
     denormalizationContext: ['groups' => ['song:write']],
     operations: [
         new Get(

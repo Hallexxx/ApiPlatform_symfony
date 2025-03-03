@@ -26,6 +26,7 @@
             background-color: #333;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
+        
         .navbar {
             padding: 1rem 0;
             position: fixed;
@@ -145,23 +146,46 @@
             font-size: 1rem;
         }
 
-         .song-slider-container, .artist-slider-container, .album-slider-container {
+        .song-slider-container, .artist-slider-container, .album-slider-container {
             display: flex;
             align-items: center;
             position: relative;
             margin: 1vh 0 0 0; 
         }
 
+        .txt {
+            position: relative;
+            text-decoration: none;
+        }
+
+        .txt::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0px;
+            width: 0;
+            height: 2px;
+            background-color: blue;
+            transition: width 0.3s ease-in-out;
+        }
+
+        .txt:hover::after {
+            width: 100%;
+        }
+
         .swiper-container {
             position: relative;
             margin-bottom: 40px;
         }
+
         .swiper-wrapper {
             display: flex;
         }
+
         .swiper-slide {
             width: 200px; 
         }
+
         .scroll-arrow {
             cursor: pointer;
             font-size: 2rem;
@@ -268,7 +292,10 @@
     </section>
 
     <div class="container">
-        <div class="section-title">Musique</div>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="section-title">Musique</div>
+            <a href="{{ path('song_page') }}" class="txt text-white">Voir tous</a>
+        </div>
         <div class="swiper-container song-slider-container">
             <div class="swiper-wrapper">
                 {% for item in limitedSongsData %}
@@ -278,10 +305,10 @@
                         'albumIndex': item.albumIndex,
                         'songIndex': item.songIndex
                     }) }}" class="text-decoration-none song-card">
-                    <div class="song-card text-center">
-                        <img src="/media/{{ item.song.image }}" alt="{{ item.song.title }}">
-                        <div class="card-body">{{ item.song.title }}</div>
-                    </div>
+                        <div class="song-card text-center">
+                            <img src="/media/{{ item.song.image }}" alt="{{ item.song.title }}">
+                            <div class="card-body">{{ item.song.title }}</div>
+                        </div>
                     </a>
                 </div>
                 {% endfor %}
@@ -290,7 +317,10 @@
             <div class="swiper-button-next"></div>
         </div>
 
-        <div class="section-title mt-5">Artistes</div>
+        <div class="d-flex justify-content-between align-items-center mt-5 mb-4">
+            <div class="section-title">Artistes</div>
+            <a href="{{ path('artist_page') }}" class="txt text-white">Voir tous</a>
+        </div>
         <div class="swiper-container artist-slider-container">
             <div class="swiper-wrapper">
                 {% for artist in artists|slice(0,8) %}
@@ -308,7 +338,10 @@
             <div class="swiper-button-next"></div>
         </div>
 
-        <div class="section-title mt-5">Albums</div>
+        <div class="d-flex justify-content-between align-items-center mt-5 mb-4">
+            <div class="section-title">Albums</div>
+            <a href="{{ path('album_page') }}" class="txt text-white">Voir tous</a>
+        </div>
         <div class="swiper-container album-slider-container">
             <div class="swiper-wrapper">
                 {% for item in limitedAlbumsData %}

@@ -1,4 +1,3 @@
-# config/packages/security.yaml
 security:
     password_hashers:
         App\Entity\User: 'auto'
@@ -10,7 +9,16 @@ security:
                 property: email
 
     firewalls:
+        # Firewall dédié aux routes API, en stateless
+        api:
+            pattern: ^/api
+            stateless: true
+            provider: users
+            jwt: ~
+
+        # Firewall principal pour le reste
         main:
+            pattern: ^/(?!api)
             stateless: false
             provider: users
             json_login:
@@ -20,17 +28,16 @@ security:
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
             jwt: ~
-            
+
     access_control:
-        - { path: ^/auth, roles: PUBLIC_ACCESS } 
-        - { path: ^/register, roles: PUBLIC_ACCESS }  
+        - { path: ^/auth, roles: PUBLIC_ACCESS }
+        - { path: ^/register, roles: PUBLIC_ACCESS }
         - { path: ^/login, roles: PUBLIC_ACCESS }
-        - { path: ^/$, roles: PUBLIC_ACCESS } 
-        - { path: ^/api/$, roles: PUBLIC_ACCESS }
+        - { path: ^/$, roles: PUBLIC_ACCESS }
         - { path: ^/docs, roles: PUBLIC_ACCESS }
-        - {path: ^/api/artists/\d+/albums/\d+/songs/\d+$,roles: IS_AUTHENTICATED_FULLY,}
-        - { path: ^/api/, roles: IS_AUTHENTICATED_FULLY }
-        
-
-
-
+        # Autoriser l'accès public (GET) aux données publiques
+        - { path: ^/api/songs, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/artists, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/albums, roles: PUBLIC_ACCESS, methods: [GET] }
+        # Pour toutes les autres requêtes API (POST, PUT, DELETE, etc.), exiger l'authentification
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }

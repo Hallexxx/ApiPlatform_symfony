@@ -70,7 +70,8 @@ class Album
 
     #[ORM\ManyToOne(targetEntity: Artist::class, inversedBy: 'albums')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['album:read'])]
+    #[Groups(['album:read', 'song:read'])]
+    #[MaxDepth(1)]
     private ?Artist $artist = null;
 
     #[ORM\Column(length: 255, nullable: true)]
