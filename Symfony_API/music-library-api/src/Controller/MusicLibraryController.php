@@ -38,10 +38,25 @@ class MusicLibraryController extends AbstractController
         $isAuthenticated = $token !== null && $user !== null;
 
         $artists = $this->musicLibraryService->getAllArtists();
-
         $limitedSongsData = $songService->getLimitedSongs(10);
-
         $limitedAlbumsData = $albumService->getLimitedAlbums(10);
+
+        $favoritedSongIds = [];
+        $favoritedArtistIds = [];
+        $favoritedAlbumIds = [];
+        if ($user) {
+            foreach ($user->getFavories() as $favoris) {
+                if ($favoris->getSong()) {
+                    $favoritedSongIds[] = $favoris->getSong()->getId();
+                }
+                if ($favoris->getArtist()) {
+                    $favoritedArtistIds[] = $favoris->getArtist()->getId();
+                }
+                if ($favoris->getAlbum()) {
+                    $favoritedAlbumIds[] = $favoris->getAlbum()->getId();
+                }
+            }
+        }
 
         return $this->render('music_library/index.html.twig', [
             'limitedSongsData'  => $limitedSongsData,
@@ -49,7 +64,11 @@ class MusicLibraryController extends AbstractController
             'artists'           => $artists,
             'is_authenticated'  => $isAuthenticated,
             'username'          => $user ? $user->getUsername() : null,
+            'favoritedSongIds'  => $favoritedSongIds,
+            'favoritedArtistIds'=> $favoritedArtistIds,
+            'favoritedAlbumIds' => $favoritedAlbumIds,
         ]);
     }
+
 
 }

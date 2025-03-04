@@ -16,7 +16,7 @@ security:
             provider: users
             jwt: ~
 
-        # Firewall principal pour le reste
+        # Firewall principal pour le reste (utilise json_login pour /auth)
         main:
             pattern: ^/(?!api)
             stateless: false
@@ -28,6 +28,9 @@ security:
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
             jwt: ~
+            logout:
+                path: /logout
+                target: /
 
     access_control:
         - { path: ^/auth, roles: PUBLIC_ACCESS }
@@ -35,9 +38,9 @@ security:
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/$, roles: PUBLIC_ACCESS }
         - { path: ^/docs, roles: PUBLIC_ACCESS }
-        # Autoriser l'accès public (GET) aux données publiques
+        # Autoriser l'accès public aux GET sur les ressources API
         - { path: ^/api/songs, roles: PUBLIC_ACCESS, methods: [GET] }
         - { path: ^/api/artists, roles: PUBLIC_ACCESS, methods: [GET] }
         - { path: ^/api/albums, roles: PUBLIC_ACCESS, methods: [GET] }
-        # Pour toutes les autres requêtes API (POST, PUT, DELETE, etc.), exiger l'authentification
+        # Pour les autres requêtes API, exiger l'authentification
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }

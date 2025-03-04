@@ -102,4 +102,66 @@ class FavorisController extends AbstractController
 
         return $this->json(['success' => 'Favoris removed'], 200);
     }
+
+    #[Route('/favoris/toggle', name: 'favoris_toggle', methods: ['POST'])]
+    public function toggleFavoris(Request $request): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return new JsonResponse(['error' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
+        }
+        
+        $type = $request->request->get('type'); // 'album', 'artist', 'song'
+        $entityId = $request->request->get('id');
+        
+        // Recherche d'un favori existant pour cet utilisateur et cet élément
+        $favorisRepo = $this->entityManager->getRepository(Favoris::class);
+        // Ici, nous utilisons une requête personnalisée pour rechercher par type et par l'identifiant de l'entité.
+        // Vous devrez adapter cette requête en fonction de la structure de votre entité Favoris.
+        $existingFavoris = $favorisRepo->findOneBy([
+            'user' => $user,
+            $type => $entityId, // Par exemple, 'song' => $entityId
+        ]);
+        
+        if ($existingFavoris) {
+            // Si déjà favorisé, le retirer
+            $this->entityManager->remove($existingFavoris);
+            $this->entityManager->flush();
+            return new JsonResponse(['favorited' => false]);
+        } else {
+            // Ajouter aux favoris
+            switch ($type) {
+                case 'song':
+                    $entity = $this->entityManager->getRepository(Song::class)->find($entityId);
+                    break;
+                case 'artist':
+                    $entity = $this->entityManager->getRepository(Artist::class)->find($entityId);
+                    break;
+                case 'album':
+                    $entity = $this->entityManager->getRepository(Album::class)->find($entityId);
+                    break;
+                default:
+                    return new JsonResponse(['error' => 'Invalid type'], Response::HTTP_BAD_REQUEST);
+            }
+            
+            if (!$entity) {
+                return new JsonResponse(['error' => ucfirst($type) . ' not found'], Response::HTTP_NOT_FOUND);
+            }
+            
+            $favoris = new Favoris();
+            $favoris->setUser($user);
+            if ($type === 'song') {
+                $favoris->setSong($entity);
+            } elseif ($type === 'artist') {
+                $favoris->setArtist($entity);
+            } elseif ($type === 'album') {
+                $favoris->setAlbum($entity);
+            }
+            
+            $this->entityManager->persist($favoris);
+            $this->entityManager->flush();
+            return new JsonResponse(['favorited' => true]);
+        }
+    }
+
 }
