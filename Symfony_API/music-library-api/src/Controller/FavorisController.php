@@ -30,9 +30,44 @@ class FavorisController extends AbstractController
             return $this->json(['error' => 'Unauthorized'], 401);
         }
 
-        $favoris = $user->getFavories();
+        $favorites = $user->getFavories();
+        $favoritesArray = [];
+        foreach ($favorites as $fav) {
+            $item = [
+                'id'           => $fav->getId(),
+                'song_id'      => null,
+                'song_title'   => null,
+                'song_image'   => null,
+                'album_id'     => null,
+                'album_title'  => null,
+                'album_image'  => null,
+                'artist_id'    => null,
+                'artist_name'  => null,
+                'artist_image' => null,
+            ];
+            if ($fav->getSong()) {
+                $song = $fav->getSong();
+                $item['song_id']    = $song->getId();
+                $item['song_title'] = $song->getTitle();
+                $item['song_image'] = $song->getImage();
+            }
+            if ($fav->getAlbum()) {
+                $album = $fav->getAlbum();
+                $item['album_id']    = $album->getId();
+                $item['album_title'] = $album->getTitle();
+                $item['album_image'] = $album->getImage();
+            }
+            if ($fav->getArtist()) {
+                $artist = $fav->getArtist();
+                $item['artist_id']    = $artist->getId();
+                $item['artist_name']  = $artist->getName();
+                $item['artist_image'] = $artist->getImage();
+            }
+            $favoritesArray[] = $item;
+        }
+
         return $this->render('favoris/favoris.html.twig', [
-            'favoris' => $favoris,
+            'favoris' => $favoritesArray,
         ]);
     }
 

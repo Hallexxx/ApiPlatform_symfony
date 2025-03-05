@@ -87,6 +87,10 @@ class Song
     #[Groups(['song:read', 'song:write'])]
     private ?string $lyrics = null;
 
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'songsCreated')]
+    #[ORM\JoinColumn(name: "created_by", referencedColumnName: "id", nullable: true)]
+    private ?User $createdBy = null;
+
     // Getters et setters
 
     public function getId(): ?int
@@ -179,6 +183,17 @@ class Song
     public function setLyrics(?string $lyrics): static
     {
         $this->lyrics = $lyrics;
+        return $this;
+    }
+
+    public function getCreatedBy(): ?User
+    {
+        return $this->createdBy;
+    }
+
+    public function setCreatedBy(?User $user): static
+    {
+        $this->createdBy = $user;
         return $this;
     }
 }

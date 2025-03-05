@@ -1,353 +1,353 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Détails du Son</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #111;
-            color: #fff;
-        }
-
-        .navbar.scrolled {
-            background-color: #333;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-        .navbar {
-            padding: 1rem 0;
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 999;
-            background: transparent;
-            transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-        }
-
-        .navbar-nav {
-            margin: 0 auto;
-        }
-
-        .navbar-nav .nav-link {
-            color: #fff;
-            margin-right: 15px;
-            position: relative;
-            padding-bottom: 5px;
-        }
-
-        .navbar-nav .nav-link.active, 
-        .navbar-nav .nav-link:hover {
-            color: #f0ad4e;
-        }
-
-        .navbar-nav .nav-link::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            background-color: #f0ad4e;
-            bottom: 0;
-            left: 50%;
-            transition: all 0.3s ease;
-        }
-
-        .navbar-nav .nav-link.active::after, 
-        .navbar-nav .nav-link:hover::after {
-            width: 100%;
-            left: 0;
-        }
-
-        .navbar-nav .nav-link.active {
-            color: #f0ad4e;
-        }
-
-        #home {
-            height: 100vh;
-        }
-
-        .home-section {
-            padding: 50px 0;
-        }
-
-        .image-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-            flex-direction: column;
-            animation: fadeIn 1.2s ease-in-out;
-        }
-
-        .song-image {
-            max-width: 80%;
-            max-height: 400px;
-            width: 300px;
-            object-fit: cover;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
-        }
-
-        .song-info {
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        .song-info h2 {
-            font-size: 1.8rem;
-            font-weight: bold;
-        }
-
-        .audio-player {
-            margin-top: 20px;
-            width: 100%;
-            max-width: 300px;
-        }
-
-        .info-lyrics-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            padding-left: 20px;
-            border-left: 1px solid rgba(255, 255, 255, 0.2);
-            animation: slideInRight 1.2s ease-in-out;
-        }
-
-        .song-controls {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-        }
-
-        .song-controls button {
-            width: 120px;
-            padding: 10px;
-            border-radius: 30px;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .btn-primary {
-            background-color: #f0ad4e;
-            color: #111;
-        }
-
-        .btn-primary:hover {
-            background-color: #ffc107;
-        }
-
-        .btn-secondary {
-            background-color: #6c757d;
-        }
-
-        .btn-secondary:hover {
-            background-color: #adb5bd;
-        }
-
-        .info-content, .lyrics-content {
-            display: none;
-        }
-
-        .info-content {
-            text-align: left; 
-        }
-
-        .info-content h4 {
-            margin-bottom: 15px; 
-            font-size: 1.5rem; 
-        }
-
-        .info-content ul {
-            list-style: none; 
-            padding: 0; 
-            margin: 0; 
-        }
-
-        .info-content li {
-            margin-bottom: 10px; 
-            font-size: 1rem; 
-            display: flex; 
-            align-items: baseline; 
-        }
-
-        .info-content li strong {
-            margin-right: 10px; 
-            color: #f0ad4e; 
-            font-weight: bold; 
-        }
-
-        .lyrics-content {
-            max-height: 400px; 
-            overflow-y: auto; 
-            margin-top: 20px; 
-            padding: 10px;
-            background-color: rgba(255, 255, 255, 0.1); 
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .active-content {
-            display: block;
-            margin-top: 3vh;
-            animation: fadeIn 0.8s ease-in-out;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Détails du Son</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+        <style>
+            body {
+                font-family: 'Poppins', sans-serif;
+                background-color: #111;
+                color: #fff;
             }
-            to {
-                opacity: 1;
-            }
-        }
 
-        @keyframes slideInRight {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
+            .navbar.scrolled {
+                background-color: #333;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             }
-            to {
-                transform: translateX(0);
-                opacity: 1;
+            .navbar {
+                padding: 1rem 0;
+                position: fixed;
+                width: 100%;
+                top: 0;
+                z-index: 999;
+                background: transparent;
+                transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
             }
-        }
 
-        @media (max-width: 768px) {
-            .info-lyrics-container {
-                border-left: none;
-                padding-left: 0;
+            .navbar-nav {
+                margin: 0 auto;
+            }
+
+            .navbar-nav .nav-link {
+                color: #fff;
+                margin-right: 15px;
+                position: relative;
+                padding-bottom: 5px;
+            }
+
+            .navbar-nav .nav-link.active, 
+            .navbar-nav .nav-link:hover {
+                color: #f0ad4e;
+            }
+
+            .navbar-nav .nav-link::after {
+                content: '';
+                position: absolute;
+                width: 0;
+                height: 2px;
+                background-color: #f0ad4e;
+                bottom: 0;
+                left: 50%;
+                transition: all 0.3s ease;
+            }
+
+            .navbar-nav .nav-link.active::after, 
+            .navbar-nav .nav-link:hover::after {
+                width: 100%;
+                left: 0;
+            }
+
+            .navbar-nav .nav-link.active {
+                color: #f0ad4e;
+            }
+
+            #home {
+                height: 100vh;
+            }
+
+            .home-section {
+                padding: 50px 0;
             }
 
             .image-container {
-                margin-bottom: 20px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100%;
+                flex-direction: column;
+                animation: fadeIn 1.2s ease-in-out;
             }
-        }
 
-        footer {
-            background-color: #222;
-            color: #fff;
-            padding: 20px 0;
-            margin-top: 5vh;
-            text-align: center;
-        }
-    </style>
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand" href="{{ path('music_library') }}">Music Library</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ path('artist_page') }}">Artists</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ path('album_page') }}">Albums</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ path('song_page') }}">Songs</a>
-                    </li>
-                    {% if app.user %}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-person"></i> {{ app.user.username }}
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="userDropdown">
-                                <li><a class="dropdown-item" href="#">Votre profil</a></li>
-                                <li><a class="dropdown-item" href="#">Vos favoris</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                               <li class="nav-item">
-                                    <a href="{{ path('logout') }}" class="dropdown-item">Logout</a>
+            .song-image {
+                max-width: 80%;
+                max-height: 400px;
+                width: 300px;
+                object-fit: cover;
+                border-radius: 10px;
+                box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+            }
 
-                                </li>
+            .song-info {
+                margin-top: 20px;
+                text-align: center;
+            }
 
-                            </ul>
+            .song-info h2 {
+                font-size: 1.8rem;
+                font-weight: bold;
+            }
+
+            .audio-player {
+                margin-top: 20px;
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .info-lyrics-container {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+                padding-left: 20px;
+                border-left: 1px solid rgba(255, 255, 255, 0.2);
+                animation: slideInRight 1.2s ease-in-out;
+            }
+
+            .song-controls {
+                display: flex;
+                justify-content: center;
+                gap: 15px;
+            }
+
+            .song-controls button {
+                width: 120px;
+                padding: 10px;
+                border-radius: 30px;
+                border: none;
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+            }
+
+            .btn-primary {
+                background-color: #f0ad4e;
+                color: #111;
+            }
+
+            .btn-primary:hover {
+                background-color: #ffc107;
+            }
+
+            .btn-secondary {
+                background-color: #6c757d;
+            }
+
+            .btn-secondary:hover {
+                background-color: #adb5bd;
+            }
+
+            .info-content, .lyrics-content {
+                display: none;
+            }
+
+            .info-content {
+                text-align: left; 
+            }
+
+            .info-content h4 {
+                margin-bottom: 15px; 
+                font-size: 1.5rem; 
+            }
+
+            .info-content ul {
+                list-style: none; 
+                padding: 0; 
+                margin: 0; 
+            }
+
+            .info-content li {
+                margin-bottom: 10px; 
+                font-size: 1rem; 
+                display: flex; 
+                align-items: baseline; 
+            }
+
+            .info-content li strong {
+                margin-right: 10px; 
+                color: #f0ad4e; 
+                font-weight: bold; 
+            }
+
+            .lyrics-content {
+                max-height: 400px; 
+                overflow-y: auto; 
+                margin-top: 20px; 
+                padding: 10px;
+                background-color: rgba(255, 255, 255, 0.1); 
+                border-radius: 8px;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+            }
+
+            .active-content {
+                display: block;
+                margin-top: 3vh;
+                animation: fadeIn 0.8s ease-in-out;
+            }
+
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                }
+                to {
+                    opacity: 1;
+                }
+            }
+
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+
+            @media (max-width: 768px) {
+                .info-lyrics-container {
+                    border-left: none;
+                    padding-left: 0;
+                }
+
+                .image-container {
+                    margin-bottom: 20px;
+                }
+            }
+
+            footer {
+                background-color: #222;
+                color: #fff;
+                padding: 20px 0;
+                margin-top: 5vh;
+                text-align: center;
+            }
+        </style>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container">
+                <a class="navbar-brand" href="{{ path('music_library') }}">Music Library</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('artist_page') }}">Artists</a>
                         </li>
-                    {% else %}
-                        <li class="nav-item"><a class="btn-link-custom" href="{{ path('register_form') }}">Register</a></li>
-                        <li class="nav-item"><a class="btn-link-custom" href="{{ path('login_form') }}">Login</a></li>
-                    {% endif %}
-                </ul>
-            </div>
-        </div>
-    </nav>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('album_page') }}">Albums</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('song_page') }}">Songs</a>
+                        </li>
+                        {% if app.user %}
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-person"></i> {{ app.user.username }}
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="userDropdown">
+                                    <li><a class="dropdown-item" href="{{ path('profile') }}">Votre profil</a></li>
+                                    <li><a class="dropdown-item" href="{{ path('favoris_index') }}">Vos favoris</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                <li class="nav-item">
+                                        <a href="{{ path('logout') }}" class="dropdown-item">Logout</a>
 
-    <section id="home" class="home-section d-flex align-items-center">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6 text-center image-container">
-                    <img src="/media/{{ song.image }}" alt="{{ song.title }}" class="song-image">
-                    <div class="song-info">
-                        <h2>{{ song.title }}</h2>
-                        <div class="audio-player">
-                            <audio controls>
-                                <source src="/media/{{ song.fileurl }}" type="audio/mpeg">
-                                Votre navigateur ne supporte pas la lecture audio.
-                            </audio>
+                                    </li>
+
+                                </ul>
+                            </li>
+                        {% else %}
+                            <li class="nav-item"><a class="btn-link-custom" href="{{ path('register_form') }}">Register</a></li>
+                            <li class="nav-item"><a class="btn-link-custom" href="{{ path('login_form') }}">Login</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <section id="home" class="home-section d-flex align-items-center">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6 text-center image-container">
+                        <img src="/media/{{ song.image }}" alt="{{ song.title }}" class="song-image">
+                        <div class="song-info">
+                            <h2>{{ song.title }}</h2>
+                            <div class="audio-player">
+                                <audio controls>
+                                    <source src="/media/{{ song.fileurl }}" type="audio/mpeg">
+                                    Votre navigateur ne supporte pas la lecture audio.
+                                </audio>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6 d-flex flex-column justify-content-center info-lyrics-container">
+                        <div class="song-controls">
+                            <button id="infoButton" class="btn btn-primary">Info</button>
+                            <button id="lyricsButton" class="btn btn-secondary">Paroles</button>
+                        </div>
+
+                        <div id="infoContent" class="info-content active-content">
+                            <h4>Informations</h4>
+                            <ul>
+                                <li><strong>Titre de la musique :</strong> {{ song.title }}</li>
+                                <li><strong>Durée :</strong> {{ song.lengthInMinutes }}</li>
+                                <li><strong>Album :</strong> {{ album.title }}</li>
+                                <li><strong>Artiste :</strong> {{ artist.name }}</li>
+                                <li><strong>Date de sortie :</strong> {{ song.date|date('d/m/Y') }}</li>
+                            </ul>
+                        </div>
+
+                        <div id="lyricsContent" class="lyrics-content">
+                            <h4>Paroles</h4>
+                            <p>{{ song.lyrics|nl2br }}</p>
                         </div>
                     </div>
                 </div>
-
-                <div class="col-lg-6 d-flex flex-column justify-content-center info-lyrics-container">
-                    <div class="song-controls">
-                        <button id="infoButton" class="btn btn-primary">Info</button>
-                        <button id="lyricsButton" class="btn btn-secondary">Paroles</button>
-                    </div>
-
-                    <div id="infoContent" class="info-content active-content">
-                        <h4>Informations</h4>
-                        <ul>
-                            <li><strong>Titre de la musique :</strong> {{ song.title }}</li>
-                            <li><strong>Durée :</strong> {{ song.lengthInMinutes }}</li>
-                            <li><strong>Album :</strong> {{ album.title }}</li>
-                            <li><strong>Artiste :</strong> {{ artist.name }}</li>
-                            <li><strong>Date de sortie :</strong> {{ song.date|date('d/m/Y') }}</li>
-                        </ul>
-                    </div>
-
-                    <div id="lyricsContent" class="lyrics-content">
-                        <h4>Paroles</h4>
-                        <p>{{ song.lyrics|nl2br }}</p>
-                    </div>
-                </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <footer>
-        &copy; 2024 Bibliothèque Musicale | Tous droits réservés.
-    </footer>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        const infoButton = document.getElementById('infoButton');
-        const lyricsButton = document.getElementById('lyricsButton');
-        const infoContent = document.getElementById('infoContent');
-        const lyricsContent = document.getElementById('lyricsContent');
+        <footer>
+            &copy; 2024 Bibliothèque Musicale | Tous droits réservés.
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            const infoButton = document.getElementById('infoButton');
+            const lyricsButton = document.getElementById('lyricsButton');
+            const infoContent = document.getElementById('infoContent');
+            const lyricsContent = document.getElementById('lyricsContent');
 
-        infoButton.addEventListener('click', () => {
-            infoContent.style.display = 'block';
-            lyricsContent.style.display = 'none';
-            infoButton.classList.add('btn-primary');
-            infoButton.classList.remove('btn-secondary');
-            lyricsButton.classList.add('btn-secondary');
-            lyricsButton.classList.remove('btn-primary');
-        });
+            infoButton.addEventListener('click', () => {
+                infoContent.style.display = 'block';
+                lyricsContent.style.display = 'none';
+                infoButton.classList.add('btn-primary');
+                infoButton.classList.remove('btn-secondary');
+                lyricsButton.classList.add('btn-secondary');
+                lyricsButton.classList.remove('btn-primary');
+            });
 
-        lyricsButton.addEventListener('click', () => {
-            infoContent.style.display = 'none';
-            lyricsContent.style.display = 'block';
-            lyricsButton.classList.add('btn-primary');
-            lyricsButton.classList.remove('btn-secondary');
-            infoButton.classList.add('btn-secondary');
-            infoButton.classList.remove('btn-primary');
-        });
-    </script>
-</body>
+            lyricsButton.addEventListener('click', () => {
+                infoContent.style.display = 'none';
+                lyricsContent.style.display = 'block';
+                lyricsButton.classList.add('btn-primary');
+                lyricsButton.classList.remove('btn-secondary');
+                infoButton.classList.add('btn-secondary');
+                infoButton.classList.remove('btn-primary');
+            });
+        </script>
+    </body>
 </html>

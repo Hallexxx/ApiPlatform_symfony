@@ -85,6 +85,10 @@ class Album
     #[Groups(['album:read'])]
     private Collection $songs;
 
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'albumsCreated')]
+    #[ORM\JoinColumn(name: "created_by", referencedColumnName: "id", nullable: true)]
+    private ?User $createdBy = null;
+
     public function __construct()
     {
         $this->songs = new ArrayCollection();
@@ -142,6 +146,17 @@ class Album
     {
         $this->image = $image;
 
+        return $this;
+    }
+
+    public function getCreatedBy(): ?User
+    {
+        return $this->createdBy;
+    }
+
+    public function setCreatedBy(?User $user): static
+    {
+        $this->createdBy = $user;
         return $this;
     }
 

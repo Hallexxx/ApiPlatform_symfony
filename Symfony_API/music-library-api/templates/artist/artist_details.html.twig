@@ -223,8 +223,8 @@
                                 <i class="bi bi-person"></i> {{ app.user.username }}
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="userDropdown">
-                                    <li><a class="dropdown-item" href="#">Votre profil</a></li>
-                                    <li><a class="dropdown-item" href="#">Vos favoris</a></li>
+                                    <li><a class="dropdown-item" href="{{ path('profile') }}">Votre profil</a></li>
+                                    <li><a class="dropdown-item" href="{{ path('favoris_index') }}">Vos favoris</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                 <li class="nav-item">
                                         <a href="{{ path('logout') }}" class="dropdown-item">Logout</a>

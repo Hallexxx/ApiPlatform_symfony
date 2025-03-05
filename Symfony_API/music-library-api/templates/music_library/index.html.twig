@@ -365,8 +365,8 @@
                             <i class="bi bi-person"></i> {{ app.user.username }}
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="userDropdown">
-                                <li><a class="dropdown-item" href="#">Votre profil</a></li>
-                                <li><a class="dropdown-item" href="#">Vos favoris</a></li>
+                                <li><a class="dropdown-item" href="{{ path('profile') }}">Votre profil</a></li>
+                                <li><a class="dropdown-item" href="{{ path('favoris_index') }}">Vos favoris</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                <li class="nav-item">
                                     <a href="{{ path('logout') }}" class="dropdown-item">Logout</a>
@@ -438,7 +438,6 @@
                     <div class="swiper-slide">
                         <a href="{{ path('artist_details', {'id': artist.id}) }}" class="text-decoration-none artist-card">
                             <div class="song-card text-center" style="width: 200px; height: 200px; position: relative;">
-                                {# Icône de favoris pour l'artiste #}
                                 <div class="favorite-icon" data-type="artist" data-entity-id="{{ artist.id }}">
                                     {% if favoritedArtistIds is defined and artist.id in favoritedArtistIds %}
                                         <i class="bi bi-heart-fill favorited"></i>
@@ -470,7 +469,6 @@
                             'albumIndex': item.albumIndex
                         }) }}" class="text-decoration-none album-card">
                             <div class="album-card text-center" style="position: relative;">
-                                {# Icône de favoris pour l'album #}
                                 <div class="favorite-icon" data-type="album" data-entity-id="{{ item.album.id }}">
                                     {% if favoritedAlbumIds is defined and item.album.id in favoritedAlbumIds %}
                                         <i class="bi bi-heart-fill favorited"></i>
@@ -508,24 +506,22 @@
 
                 initListeners() {
                     this.searchInput.addEventListener('input', (e) => {
-                    const query = e.target.value.trim();
-                    if (!query || query.length < 2) {
-                        this.hideSuggestions();
-                        return;
-                    }
-                    this.onSearch(query);
+                        const query = e.target.value.trim();
+                        if (!query || query.length < 2) {
+                            this.hideSuggestions();
+                            return;
+                        }
+                        this.onSearch(query);
                     });
 
-                    // Lorsqu'on quitte le champ, on cache les suggestions avec un léger délai pour permettre le clic
                     this.searchInput.addEventListener('blur', () => {
-                    setTimeout(() => { this.hideSuggestions(); }, 150);
+                        setTimeout(() => { this.hideSuggestions(); }, 150);
                     });
 
-                    // Cacher les suggestions si on clique en dehors
                     document.addEventListener('click', (e) => {
-                    if (!this.suggestionsContainer.contains(e.target) && e.target !== this.searchInput) {
-                        this.hideSuggestions();
-                    }
+                        if (!this.suggestionsContainer.contains(e.target) && e.target !== this.searchInput) {
+                            this.hideSuggestions();
+                        }
                     });
                 }
 
@@ -542,10 +538,8 @@
                 }
 
                 renderSuggestions(suggestions) {
-                    // Limiter à 5 suggestions maximum
                     suggestions = suggestions.slice(0, 5);
 
-                    // Grouper par label (en minuscules) pour repérer les doublons
                     const grouped = {};
                     suggestions.forEach(suggestion => {
                     const key = suggestion.label.toLowerCase();
@@ -555,18 +549,15 @@
                     grouped[key].push(suggestion);
                     });
 
-                    // Pour chaque groupe avec plusieurs entrées, on ajoute des informations supplémentaires
                     Object.keys(grouped).forEach(key => {
                     const group = grouped[key];
                     if (group.length > 1) {
-                        // Si les types diffèrent, on ajoute le type à chaque label
                         const types = group.map(s => s.type);
                         const uniqueTypes = [...new Set(types)];
                         group.forEach(s => {
                         if (uniqueTypes.length > 1) {
                             s.label += ` (${s.type})`;
                         } else if (s.type === 'song' || s.type === 'album') {
-                            // Si tous les éléments du groupe sont du même type, on ajoute le nom de l'artiste (si fourni)
                             if (s.artistName) {
                             s.label += ` (${s.artistName})`;
                             } else {
@@ -577,7 +568,6 @@
                     }
                     });
 
-                    // On reconstruit un tableau à partir des suggestions (l'ordre initial est conservé)
                     const modifiedSuggestions = suggestions.map(suggestion => suggestion);
 
                     this.suggestionsContainer.innerHTML = modifiedSuggestions.map(item => {

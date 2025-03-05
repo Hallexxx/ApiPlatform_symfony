@@ -60,6 +60,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user:read'])]
     private Collection $favories;  
 
+    #[ORM\OneToMany(mappedBy: 'createdBy', targetEntity: Song::class)]
+    private Collection $songsCreated;
+
+    #[ORM\OneToMany(mappedBy: 'createdBy', targetEntity: Album::class)]
+    private Collection $albumsCreated;
+
+    #[ORM\OneToMany(mappedBy: 'createdBy', targetEntity: Artist::class)]
+    private Collection $artistsCreated;
+
     public function eraseCredentials(): void
     {
         // Cette méthode peut rester vide si vous n'avez rien à effacer.
@@ -67,7 +76,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function __construct()
     {
-        $this->favories = new ArrayCollection();  
+        $this->favories = new ArrayCollection();
+        $this->songsCreated = new ArrayCollection();
+        $this->albumsCreated = new ArrayCollection();
+        $this->artistsCreated = new ArrayCollection();  
     }
 
     public function getId(): ?int
@@ -145,6 +157,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->favories; 
     }
 
+     /**
+     * @return Collection<int, Song>
+     */
+    public function getSongsCreated(): Collection
+    {
+        return $this->songsCreated;
+    }
+
+    /**
+     * @return Collection<int, Album>
+     */
+    public function getAlbumsCreated(): Collection
+    {
+        return $this->albumsCreated;
+    }
+
+    /**
+     * @return Collection<int, Artist>
+     */
+    public function getArtistsCreated(): Collection
+    {
+        return $this->artistsCreated;
+    }
+    
     public function addFavori(Favoris $favori): self
     {
         if (!$this->favories->contains($favori)) {
