@@ -33,14 +33,13 @@ security:
                 target: /
 
     access_control:
-        - { path: ^/auth, roles: PUBLIC_ACCESS }
-        - { path: ^/register, roles: PUBLIC_ACCESS }
-        - { path: ^/login, roles: PUBLIC_ACCESS }
-        - { path: ^/$, roles: PUBLIC_ACCESS }
-        - { path: ^/docs, roles: PUBLIC_ACCESS }
-        # Autoriser l'accès public aux GET sur les ressources API
-        - { path: ^/api/songs, roles: PUBLIC_ACCESS, methods: [GET] }
-        - { path: ^/api/artists, roles: PUBLIC_ACCESS, methods: [GET] }
-        - { path: ^/api/albums, roles: PUBLIC_ACCESS, methods: [GET] }
-        # Pour les autres requêtes API, exiger l'authentification
-        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
+    - { path: ^/auth, roles: PUBLIC_ACCESS }
+    - { path: ^/register, roles: PUBLIC_ACCESS }
+    - { path: ^/login, roles: PUBLIC_ACCESS }
+    - { path: ^/$, roles: PUBLIC_ACCESS }
+    - { path: ^/docs, roles: PUBLIC_ACCESS }
+    - { path: ^/api/songs, roles: PUBLIC_ACCESS, methods: [GET] }
+    - { path: ^/api/artists, roles: PUBLIC_ACCESS, methods: [GET] }
+    - { path: ^/api/albums, roles: PUBLIC_ACCESS, methods: [GET] }
+    - { path: ^/api/search, roles: PUBLIC_ACCESS, methods: [GET] }
+    - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }

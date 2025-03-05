@@ -8,31 +8,53 @@ use App\Service\ArtistService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Doctrine\ORM\EntityManagerInterface;
+use App\Entity\User;
+
 
 class SongController extends AbstractController
 {
     private SongService $songService;
+    private ArtistService $artistService;
+    private EntityManagerInterface $entityManager;
 
-    public function __construct(SongService $songService, ArtistService $artistService)
-    {
+    public function __construct(
+        SongService $songService, 
+        ArtistService $artistService,
+        EntityManagerInterface $entityManager
+    ) {
         $this->songService = $songService;
         $this->artistService = $artistService;
+        $this->entityManager = $entityManager;
     }
 
-    
     #[Route('/songs', name: 'song_page', methods: ['GET'])]
-    public function listSongs(): Response
+    public function listSongs(SessionInterface $session): Response
     {
         $songs = $this->songService->getAllSongs();
-
         $artists = $this->artistService->getAllArtists();
 
+        /** @var User|null $user */
+        $user = $this->getUser();
+        $favoritedSongIds = [];
+        if ($user instanceof User) {
+            foreach ($user->getFavories() as $favoris) {
+                if ($favoris->getSong()) {
+                    $favoritedSongIds[] = $favoris->getSong()->getId();
+                }
+            }
+        }
+
+        $isAuthenticated = $user !== null;
+
         return $this->render('song/song.html.twig', [
-            'songs' => $songs,
-            'artists' => $artists, 
+            'songs'             => $songs,
+            'artists'           => $artists,
+            'favoritedSongIds'  => $favoritedSongIds,
+            'isAuthenticated'   => $isAuthenticated,
         ]);
     }
-
 
     #[Route('/artists/{artistId}/albums/{albumIndex}/songs/{songIndex}', name: 'song_details', methods: ['GET'])]
     public function showSongDetails(int $artistId, int $albumIndex, int $songIndex): Response
@@ -65,11 +87,6 @@ class SongController extends AbstractController
         ]);
     }
 
-    /**
-     * Deletes a specific song.
-     *
-     * @Route('/songs/{id}', name: 'song_delete', methods: ['DELETE'])
-     */
     public function deleteSong(int $id): Response
     {
         try {

@@ -111,25 +111,20 @@ class FavorisController extends AbstractController
             return new JsonResponse(['error' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
         }
         
-        $type = $request->request->get('type'); // 'album', 'artist', 'song'
+        $type = $request->request->get('type');                                                                                                                                                                                                              
         $entityId = $request->request->get('id');
         
-        // Recherche d'un favori existant pour cet utilisateur et cet élément
         $favorisRepo = $this->entityManager->getRepository(Favoris::class);
-        // Ici, nous utilisons une requête personnalisée pour rechercher par type et par l'identifiant de l'entité.
-        // Vous devrez adapter cette requête en fonction de la structure de votre entité Favoris.
         $existingFavoris = $favorisRepo->findOneBy([
             'user' => $user,
-            $type => $entityId, // Par exemple, 'song' => $entityId
+            $type => $entityId, 
         ]);
         
         if ($existingFavoris) {
-            // Si déjà favorisé, le retirer
             $this->entityManager->remove($existingFavoris);
             $this->entityManager->flush();
             return new JsonResponse(['favorited' => false]);
         } else {
-            // Ajouter aux favoris
             switch ($type) {
                 case 'song':
                     $entity = $this->entityManager->getRepository(Song::class)->find($entityId);

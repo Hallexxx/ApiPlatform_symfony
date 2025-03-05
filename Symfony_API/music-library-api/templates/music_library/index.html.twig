@@ -96,6 +96,7 @@
 
         .search-section{
             padding: 10vh;
+            text-align: center;
         }
 
         .search-filters {
@@ -104,12 +105,38 @@
         }
 
         .search-bar {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
             transition: box-shadow 0.3s ease, transform 0.3s ease;
         }
 
-        .search-bar:focus {
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            transform: scale(1.02);
+       .search-bar:focus { box-shadow: 0 4px 15px rgba(0,0,0,0.2); transform: scale(1.02); }
+        .search-suggestions {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #222;
+            border: 1px solid #333;
+            border-radius: 5px;
+            width: 100%;
+            max-width: 500px;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .search-suggestions.active { opacity: 1; pointer-events: auto; }
+        .search-suggestion {
+            padding: 10px;
+            border-bottom: 1px solid #333;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .search-suggestion:last-child { border-bottom: none; }
+        .search-suggestion:hover { background: #333; }
+
+        .section-title { 
+            font-size: 1.5rem; font-weight: bold; 
         }
 
         .filters select {
@@ -217,18 +244,6 @@
             color: #007bff;
         }
 
-        {# .scroll-arrow.left-arrow {
-            position: absolute;
-            left: 10px;
-            z-index: 10;
-        } #}
-
-        {# .scroll-arrow.right-arrow {
-            position: absolute;
-            right: 10px;
-            z-index: 999;
-        } #}
-
         .btn-link-custom {
             display: flex;
             font-weight: bold;
@@ -283,32 +298,30 @@
         }
 
         .favorite-icon {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        cursor: pointer;
-        z-index: 10;
-        font-size: 1.5rem;
-        transition: transform 0.3s ease;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            z-index: 10;
+            font-size: 1.5rem;
+            transition: transform 0.3s ease;
         }
 
-        /* Couleur par défaut (non favori) */
-        .favorite-icon i {
-        color: white;
+        .favorited {
+            color: red !important;
         }
 
-        /* Animation de vibration */
         @keyframes vibrate {
-        0% { transform: translate(0); }
-        20% { transform: translate(-2px, 2px); }
-        40% { transform: translate(-2px, -2px); }
-        60% { transform: translate(2px, 2px); }
-        80% { transform: translate(2px, -2px); }
-        100% { transform: translate(0); }
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
         }
 
         .vibrate {
-        animation: vibrate 0.5s ease;
+            animation: vibrate 0.5s ease;
         }
         .swiper-button-next{
             right: var(--swiper-navigation-sides-offset, -70px);
@@ -371,30 +384,12 @@
         </div>
     </nav>
 
-    <section id="search" class="search-section">
-        <div class="container search-filters">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <input type="text" class="form-control search-bar" placeholder="Rechercher...">
-                </div>
-
-                <div class="col-md-4 d-flex justify-content-end filters">
-                    <select class="form-select me-2">
-                        <option>Date</option>
-                        <option>2024</option>
-                        <option>2023</option>
-                    </select>
-                    <select class="form-select me-2">
-                        <option>Type</option>
-                        <option>Pop</option>
-                        <option>Rock</option>
-                    </select>
-                    <select class="form-select">
-                        <option>Durée</option>
-                        <option>&lt; 3 min</option>
-                        <option>3-5 min</option>
-                        <option>&gt; 5 min</option>
-                    </select>
+    <section id="search" class="search-section position-relative">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <input type="text" class="form-control search-bar" placeholder="Rechercher..." id="home-search">
+                    <div id="search-suggestions" class="search-suggestions"></div>
                 </div>
             </div>
         </div>
@@ -414,27 +409,24 @@
                             'albumIndex': item.albumIndex,
                             'songIndex': item.songIndex
                         }) }}" class="text-decoration-none song-card">
-                        <div class="song-card text-center" style="position: relative;">
-                            <div class="favorite-icon" data-type="song" data-entity-id="{{ item.song.id }}">
-                                {% if favoritedSongIds is defined and item.song.id in favoritedSongIds %}
-                                    <i class="bi bi-heart-fill"></i>
-                                {% else %}
-                                    <i class="bi bi-heart"></i>
-                                {% endif %}
+                            <div class="song-card text-center" style="position: relative;">
+                                <div class="favorite-icon" data-type="song" data-entity-id="{{ item.song.id }}">
+                                    {% if favoritedSongIds is defined and item.song.id in favoritedSongIds %}
+                                        <i class="bi bi-heart-fill favorited"></i>
+                                    {% else %}
+                                        <i class="bi bi-heart"></i>
+                                    {% endif %}
+                                </div>
+                                <img src="/media/{{ item.song.image }}" alt="{{ item.song.title }}">
+                                <div class="card-body">{{ item.song.title }}</div>
                             </div>
-                            <img src="/media/{{ item.song.image }}" alt="{{ item.song.title }}">
-                            <div class="card-body">{{ item.song.title }}</div>
-                        </div>
                         </a>
                     </div>
                 {% endfor %}
-
             </div>
             <div class="swiper-button-prev"></div>
             <div class="swiper-button-next"></div>
         </div>
-
-        {{ dump(favoritedSongIds) }}
 
         <div class="d-flex justify-content-between align-items-center mt-5 mb-4">
             <div class="section-title">Artistes</div>
@@ -445,7 +437,15 @@
                 {% for artist in artists|slice(0,8) %}
                     <div class="swiper-slide">
                         <a href="{{ path('artist_details', {'id': artist.id}) }}" class="text-decoration-none artist-card">
-                            <div class="song-card text-center" style="width: 200px; height: 200px;">
+                            <div class="song-card text-center" style="width: 200px; height: 200px; position: relative;">
+                                {# Icône de favoris pour l'artiste #}
+                                <div class="favorite-icon" data-type="artist" data-entity-id="{{ artist.id }}">
+                                    {% if favoritedArtistIds is defined and artist.id in favoritedArtistIds %}
+                                        <i class="bi bi-heart-fill favorited"></i>
+                                    {% else %}
+                                        <i class="bi bi-heart"></i>
+                                    {% endif %}
+                                </div>
                                 <img src="/media/{{ artist.image }}" alt="{{ artist.name }}" class="img-fluid w-100 h-100">
                                 <div class="card-body">{{ artist.name }}</div>
                             </div>
@@ -469,7 +469,15 @@
                             'artistId': item.artistId,
                             'albumIndex': item.albumIndex
                         }) }}" class="text-decoration-none album-card">
-                            <div class="album-card text-center">
+                            <div class="album-card text-center" style="position: relative;">
+                                {# Icône de favoris pour l'album #}
+                                <div class="favorite-icon" data-type="album" data-entity-id="{{ item.album.id }}">
+                                    {% if favoritedAlbumIds is defined and item.album.id in favoritedAlbumIds %}
+                                        <i class="bi bi-heart-fill favorited"></i>
+                                    {% else %}
+                                        <i class="bi bi-heart"></i>
+                                    {% endif %}
+                                </div>
                                 <img src="/media/{{ item.album.image }}" alt="{{ item.album.title }}">
                                 <div class="card-body">{{ item.album.title }}</div>
                             </div>
@@ -482,149 +490,252 @@
         </div>
     </div>
 
-    <footer>
-        &copy; 2024 Bibliothèque Musicale | Tous droits réservés.
-    </footer>
+        <footer>
+            &copy; 2024 Bibliothèque Musicale | Tous droits réservés.
+        </footer>
 
         <script src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.10.4/gsap.min.js"></script>
         <script>
-            function logout() {
-                // Supprimer le token stocké côté client (ici, localStorage)
-                localStorage.removeItem('token');
-                // Optionnel : supprimer d'autres informations de connexion si nécessaire
+            class HomeSearch {
+                constructor() {
+                    this.searchInput = document.getElementById('home-search');
+                    this.suggestionsContainer = document.getElementById('search-suggestions');
+                    this.initListeners();
+                }
 
-                // Rediriger l'utilisateur vers la page d'accueil (ou la page de login)
-                window.location.href = '/';
-            }
-        document.addEventListener('DOMContentLoaded', () => {
-
-            const navbar = document.querySelector('.navbar');
-            window.addEventListener('scroll', () => {
-                navbar.classList.toggle('scrolled', window.scrollY > 50);
-            });
-
-            var songSwiper = new Swiper('.song-slider-container', {
-                slidesPerView: 'auto', 
-                spaceBetween: 20,      
-                navigation: {
-                nextEl: '.song-slider-container .swiper-button-next',
-                prevEl: '.song-slider-container .swiper-button-prev'
-                },
-                resistanceRatio: 0.85,  
-                threshold: 20,          
-                freeMode: false,
-                momentum: true,
-            });
-            
-            var artistSwiper = new Swiper('.artist-slider-container', {
-                slidesPerView: 'auto',
-                spaceBetween: 20,
-                navigation: {
-                nextEl: '.artist-slider-container .swiper-button-next',
-                prevEl: '.artist-slider-container .swiper-button-prev'
-                },
-                resistanceRatio: 0.85,
-                threshold: 20,
-                freeMode: false,
-            });
-            
-            var albumSwiper = new Swiper('.album-slider-container', {
-                slidesPerView: 'auto',
-                spaceBetween: 20,
-                navigation: {
-                nextEl: '.album-slider-container .swiper-button-next',
-                prevEl: '.album-slider-container .swiper-button-prev'
-                },
-                resistanceRatio: 0.85,
-                threshold: 20,
-                freeMode: false,
-            });
-
-            document.querySelectorAll('.favorite-icon').forEach(icon => {
-        icon.addEventListener('click', async function(e) {
-            e.preventDefault();
-            
-            // Vérification de l'authentification via une variable globale définie via Twig
-            if (!window.isAuthenticated || window.isAuthenticated === 'false') {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Vous devez être connecté pour ajouter des éléments en favoris',
-                    toast: true,
-                    position: 'bottom-end',
-                    showConfirmButton: false,
-                    timer: 3000
-                });
-                // Redirection vers la page de login après 3s
-                setTimeout(() => {
-                    window.location.href = "{{ path('login_form') }}";
-                }, 3000);
-                return;
-            }
-            
-            const type = this.getAttribute('data-type');
-            const entityId = this.getAttribute('data-entity-id');
-            
-            try {
-                const formData = new URLSearchParams();
-                formData.append('type', type);
-                formData.append('id', entityId);
-                
-                // Appel à un endpoint toggle que vous devez créer côté serveur
-                const response = await fetch("{{ path('favoris_toggle') }}", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: formData.toString()
-                });
-                
-                const result = await response.json();
-                const iconElem = this.querySelector('i');
-                
-                if (response.ok) {
-                    if (result.favorited) {
-                        // Si l'élément est ajouté aux favoris, change l'icône et lance l'animation
-                        iconElem.classList.remove('bi-heart');
-                        iconElem.classList.add('bi-heart-fill');
-                        iconElem.style.color = 'red';
-                        iconElem.classList.add('vibrate');
-                        setTimeout(() => { iconElem.classList.remove('vibrate'); }, 500);
-                    } else {
-                        // Si l'élément est retiré des favoris, remet l'icône à l'état initial
-                        iconElem.classList.remove('bi-heart-fill');
-                        iconElem.classList.add('bi-heart');
-                        iconElem.style.color = 'white';
+                initListeners() {
+                    this.searchInput.addEventListener('input', (e) => {
+                    const query = e.target.value.trim();
+                    if (!query || query.length < 2) {
+                        this.hideSuggestions();
+                        return;
                     }
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Erreur',
-                        text: result.error || 'Une erreur est survenue',
-                        toast: true,
-                        position: 'bottom-end',
-                        showConfirmButton: false,
-                        timer: 3000
+                    this.onSearch(query);
+                    });
+
+                    // Lorsqu'on quitte le champ, on cache les suggestions avec un léger délai pour permettre le clic
+                    this.searchInput.addEventListener('blur', () => {
+                    setTimeout(() => { this.hideSuggestions(); }, 150);
+                    });
+
+                    // Cacher les suggestions si on clique en dehors
+                    document.addEventListener('click', (e) => {
+                    if (!this.suggestionsContainer.contains(e.target) && e.target !== this.searchInput) {
+                        this.hideSuggestions();
+                    }
                     });
                 }
-            } catch (error) {
-                console.error('Erreur lors du toggle favoris:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Erreur',
-                    text: 'Une erreur est survenue',
-                    toast: true,
-                    position: 'bottom-end',
-                    showConfirmButton: false,
-                    timer: 3000
-                });
-            }
-        });
-    });
-        });
 
-        window.isAuthenticated = {{ app.user ? 'true' : 'false' }};
-  </script>
-</body>
+                async onSearch(query) {
+                    this.showSuggestions();
+                    try {
+                    const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+                    const suggestions = await response.json();
+                    this.renderSuggestions(suggestions);
+                    } catch (error) {
+                    console.error('Erreur lors de la recherche live:', error);
+                    this.hideSuggestions();
+                    }
+                }
+
+                renderSuggestions(suggestions) {
+                    // Limiter à 5 suggestions maximum
+                    suggestions = suggestions.slice(0, 5);
+
+                    // Grouper par label (en minuscules) pour repérer les doublons
+                    const grouped = {};
+                    suggestions.forEach(suggestion => {
+                    const key = suggestion.label.toLowerCase();
+                    if (!grouped[key]) {
+                        grouped[key] = [];
+                    }
+                    grouped[key].push(suggestion);
+                    });
+
+                    // Pour chaque groupe avec plusieurs entrées, on ajoute des informations supplémentaires
+                    Object.keys(grouped).forEach(key => {
+                    const group = grouped[key];
+                    if (group.length > 1) {
+                        // Si les types diffèrent, on ajoute le type à chaque label
+                        const types = group.map(s => s.type);
+                        const uniqueTypes = [...new Set(types)];
+                        group.forEach(s => {
+                        if (uniqueTypes.length > 1) {
+                            s.label += ` (${s.type})`;
+                        } else if (s.type === 'song' || s.type === 'album') {
+                            // Si tous les éléments du groupe sont du même type, on ajoute le nom de l'artiste (si fourni)
+                            if (s.artistName) {
+                            s.label += ` (${s.artistName})`;
+                            } else {
+                            s.label += ` (${s.type})`;
+                            }
+                        }
+                        });
+                    }
+                    });
+
+                    // On reconstruit un tableau à partir des suggestions (l'ordre initial est conservé)
+                    const modifiedSuggestions = suggestions.map(suggestion => suggestion);
+
+                    this.suggestionsContainer.innerHTML = modifiedSuggestions.map(item => {
+                    return `<div class="search-suggestion" data-url="${item.url}">${item.label}</div>`;
+                    }).join('');
+
+                    this.suggestionsContainer.querySelectorAll('.search-suggestion').forEach(el => {
+                    el.addEventListener('click', () => {
+                        window.location.href = el.getAttribute('data-url');
+                    });
+                    el.addEventListener('mouseenter', () => {
+                        gsap.to(el, { scale: 1.05, duration: 0.2 });
+                    });
+                    el.addEventListener('mouseleave', () => {
+                        gsap.to(el, { scale: 1, duration: 0.2 });
+                    });
+                    });
+
+                    gsap.fromTo(this.suggestionsContainer, { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.3 });
+                }
+
+                showSuggestions() {
+                    this.suggestionsContainer.classList.add('active');
+                }
+
+                hideSuggestions() {
+                    this.suggestionsContainer.classList.remove('active');
+                    this.suggestionsContainer.innerHTML = '';
+                }
+            }
+
+            const homeSearch = new HomeSearch();
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const navbar = document.querySelector('.navbar');
+                window.addEventListener('scroll', () => {
+                    navbar.classList.toggle('scrolled', window.scrollY > 50);
+                });
+
+                var songSwiper = new Swiper('.song-slider-container', {
+                    slidesPerView: 'auto',
+                    spaceBetween: 20,
+                    navigation: {
+                        nextEl: '.song-slider-container .swiper-button-next',
+                        prevEl: '.song-slider-container .swiper-button-prev'
+                    },
+                    resistanceRatio: 0.85,
+                    threshold: 20,
+                    freeMode: false,
+                    momentum: true,
+                });
+                
+                var artistSwiper = new Swiper('.artist-slider-container', {
+                    slidesPerView: 'auto',
+                    spaceBetween: 20,
+                    navigation: {
+                        nextEl: '.artist-slider-container .swiper-button-next',
+                        prevEl: '.artist-slider-container .swiper-button-prev'
+                    },
+                    resistanceRatio: 0.85,
+                    threshold: 20,
+                    freeMode: false,
+                });
+                
+                var albumSwiper = new Swiper('.album-slider-container', {
+                    slidesPerView: 'auto',
+                    spaceBetween: 20,
+                    navigation: {
+                        nextEl: '.album-slider-container .swiper-button-next',
+                        prevEl: '.album-slider-container .swiper-button-prev'
+                    },
+                    resistanceRatio: 0.85,
+                    threshold: 20,
+                    freeMode: false,
+                });
+
+                document.querySelectorAll('.favorite-icon').forEach(icon => {
+                    icon.addEventListener('click', async function(e) {
+                        e.preventDefault();
+                        
+                        if (!window.isAuthenticated || window.isAuthenticated === 'false') {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Vous devez être connecté pour ajouter des éléments en favoris',
+                                toast: true,
+                                position: 'bottom-end',
+                                showConfirmButton: false,
+                                timer: 3000
+                            });
+                            setTimeout(() => {
+                                window.location.href = "{{ path('login_form') }}";
+                            }, 3000);
+                            return;
+                        }
+                        
+                        const type = this.getAttribute('data-type');
+                        const entityId = this.getAttribute('data-entity-id');
+                        
+                        try {
+                            const formData = new URLSearchParams();
+                            formData.append('type', type);
+                            formData.append('id', entityId);
+                            
+                            const response = await fetch("{{ path('favoris_toggle') }}", {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded'
+                                },
+                                body: formData.toString()
+                            });
+                            
+                            const result = await response.json();
+                            const iconElem = this.querySelector('i');
+                            
+                            if (response.ok) {
+                                if (result.favorited) {
+                                    iconElem.classList.remove('bi-heart');
+                                    iconElem.classList.add('bi-heart-fill', 'favorited');
+                                    iconElem.style.color = 'red';
+                                    
+                                    gsap.fromTo(iconElem, 
+                                        { scale: 1 }, 
+                                        { scale: 1.5, duration: 0.2, ease: "power1.out", yoyo: true, repeat: 1 }
+                                    );
+                                } else {
+                                    iconElem.classList.remove('bi-heart-fill', 'favorited');
+                                    iconElem.classList.add('bi-heart');
+                                    iconElem.style.color = 'white';
+                                }
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Erreur',
+                                    text: result.error || 'Une erreur est survenue',
+                                    toast: true,
+                                    position: 'bottom-end',
+                                    showConfirmButton: false,
+                                    timer: 3000
+                                });
+                            }
+                        } catch (error) {
+                            console.error('Erreur lors du toggle favoris:', error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Erreur',
+                                text: 'Une erreur est survenue',
+                                toast: true,
+                                position: 'bottom-end',
+                                showConfirmButton: false,
+                                timer: 3000
+                            });
+                        }
+                    });
+                });
+
+                window.isAuthenticated = {{ app.user ? 'true' : 'false' }};
+            });
+        </script>
+
+    </body>
 </html>

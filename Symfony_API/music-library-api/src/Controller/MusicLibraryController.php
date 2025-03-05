@@ -37,6 +37,12 @@ class MusicLibraryController extends AbstractController
         $user = $userId !== null ? $this->entityManager->getRepository(User::class)->find($userId) : null;
         $isAuthenticated = $token !== null && $user !== null;
 
+        $user = $this->getUser();
+        if ($user) {
+            $this->entityManager->refresh($user);
+        }
+
+
         $artists = $this->musicLibraryService->getAllArtists();
         $limitedSongsData = $songService->getLimitedSongs(10);
         $limitedAlbumsData = $albumService->getLimitedAlbums(10);
@@ -69,6 +75,4 @@ class MusicLibraryController extends AbstractController
             'favoritedAlbumIds' => $favoritedAlbumIds,
         ]);
     }
-
-
 }

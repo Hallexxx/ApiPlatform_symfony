@@ -24,8 +24,36 @@ class ArtistController extends AbstractController
     {
         $artists = $this->artistService->getAllArtists();
 
+        // Calcul des favoris pour les artistes si l'utilisateur est connecté
+        $favoritedArtistIds = [];
+        $user = $this->getUser();
+        if ($user) {
+            foreach ($user->getFavories() as $favoris) {
+                if ($favoris->getArtist()) {
+                    $favoritedArtistIds[] = $favoris->getArtist()->getId();
+                }
+            }
+        }
+
+        // Extraction des valeurs distinctes pour les filtres
+        $distinctStyles = [];
+        $distinctNationalities = [];
+        foreach ($artists as $artist) {
+            $style = $artist->getStyle();
+            $nationality = $artist->getNationality();
+            if ($style && !in_array($style, $distinctStyles, true)) {
+                $distinctStyles[] = $style;
+            }
+            if ($nationality && !in_array($nationality, $distinctNationalities, true)) {
+                $distinctNationalities[] = $nationality;
+            }
+        }
+
         return $this->render('artist/artist.html.twig', [
-            'artists' => $artists,
+            'artists'             => $artists,
+            'favoritedArtistIds'  => $favoritedArtistIds,
+            'distinctStyles'      => $distinctStyles,
+            'distinctNationalities' => $distinctNationalities,
         ]);
     }
 
