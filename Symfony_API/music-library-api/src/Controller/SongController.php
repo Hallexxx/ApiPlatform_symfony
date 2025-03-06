@@ -5,12 +5,17 @@ namespace App\Controller;
 use App\Entity\Song;
 use App\Service\SongService;
 use App\Service\ArtistService;
+use App\Entity\Album;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\User;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 
 class SongController extends AbstractController
@@ -48,11 +53,15 @@ class SongController extends AbstractController
 
         $isAuthenticated = $user !== null;
 
+        // Récupérer tous les albums (ou filtrer selon vos besoins)
+        $albums = $this->entityManager->getRepository(Album::class)->findAll();
+
         return $this->render('song/song.html.twig', [
             'songs'             => $songs,
             'artists'           => $artists,
             'favoritedSongIds'  => $favoritedSongIds,
             'isAuthenticated'   => $isAuthenticated,
+            'albums'            => $albums, // On passe la variable albums
         ]);
     }
 
@@ -87,6 +96,79 @@ class SongController extends AbstractController
         ]);
     }
 
+    #[Route('/song/add', name: 'song_add', methods: ['POST'])]
+    public function addSong(Request $request): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return new JsonResponse(['error' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $song = new Song();
+        $song->setTitle($request->request->get('title'));
+        $song->setLyrics($request->request->get('lyrics'));
+        try {
+            $song->setDate(new \DateTime($request->request->get('date')));
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => 'Format de date invalide'], Response::HTTP_BAD_REQUEST);
+        }
+        $song->setLength((int)$request->request->get('length'));
+
+        // Récupérer l'album choisi
+        $albumId = $request->request->get('album');
+        if (!$albumId) {
+            return new JsonResponse(['error' => 'Veuillez sélectionner un album'], Response::HTTP_BAD_REQUEST);
+        }
+        $album = $this->entityManager->getRepository(Album::class)->find($albumId);
+        if (!$album) {
+            return new JsonResponse(['error' => 'Album non trouvé'], Response::HTTP_BAD_REQUEST);
+        }
+        $song->setAlbum($album);
+
+        // Gestion de l'image
+        if ($request->files->get('image')) {
+            /** @var UploadedFile $file */
+            $file = $request->files->get('image');
+            $newFilename = uniqid() . '.' . $file->guessExtension();
+            try {
+                $file->move($this->getParameter('media_directory'), $newFilename);
+                $song->setImage($newFilename);
+            } catch (FileException $e) {
+                return new JsonResponse(['error' => 'Erreur lors de l’upload de l’image'], Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            $selectedImage = $request->request->get('image');
+            if ($selectedImage) {
+                $song->setImage($selectedImage);
+            }
+        }
+
+        // Gestion du mp3/mp4
+        if ($request->files->get('mp3')) {
+            /** @var UploadedFile $mp3File */
+            $mp3File = $request->files->get('mp3');
+            $newMp3Filename = uniqid() . '.' . $mp3File->guessExtension();
+            try {
+                $mp3File->move($this->getParameter('media_directory'), $newMp3Filename);
+                $song->setFileUrl($newMp3Filename);
+            } catch (FileException $e) {
+                return new JsonResponse(['error' => 'Erreur lors de l’upload du mp3'], Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            $selectedMp3 = $request->request->get('mp3');
+            if ($selectedMp3) {
+                $song->setFileUrl($selectedMp3);
+            }
+        }
+
+        $song->setCreatedBy($user);
+
+        $this->entityManager->persist($song);
+        $this->entityManager->flush();
+
+        return new JsonResponse(['success' => true]);
+    }
+    
     public function deleteSong(int $id): Response
     {
         try {

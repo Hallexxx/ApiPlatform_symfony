@@ -11,6 +11,9 @@ use App\Repository\SongRepository;
 use App\Repository\AlbumRepository;
 use App\Repository\ArtistRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+
 
 class ProfileController extends AbstractController
 {
@@ -18,17 +21,20 @@ class ProfileController extends AbstractController
     private AlbumRepository $albumRepository;
     private ArtistRepository $artistRepository;
     private EntityManagerInterface $entityManager;
+    private string $mediaDirectory;
 
     public function __construct(
         SongRepository $songRepository,
         AlbumRepository $albumRepository,
         ArtistRepository $artistRepository,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        string $mediaDirectory
     ) {
         $this->songRepository   = $songRepository;
         $this->albumRepository  = $albumRepository;
         $this->artistRepository = $artistRepository;
         $this->entityManager    = $entityManager;
+        $this->mediaDirectory   = $mediaDirectory;
     }
 
     #[Route('/profile', name: 'profile')]
@@ -77,5 +83,116 @@ class ProfileController extends AbstractController
             'username' => $user->getUsername(),
             'email'    => $user->getEmail()
         ]);
+    }
+
+    #[Route('/profile/update/song/{id}', name: 'profile_update_song', methods: ['POST'])]
+    public function updateSong(Request $request, int $id): JsonResponse
+    {
+        $user = $this->getUser();
+        $song = $this->songRepository->find($id);
+        if (!$song || $song->getCreatedBy() !== $user) {
+            return new JsonResponse(['error' => 'Chanson non trouvée ou accès non autorisé'], Response::HTTP_NOT_FOUND);
+        }
+
+        $title = $request->request->get('title');
+        $lyrics = $request->request->get('lyrics');
+        $date = $request->request->get('date');
+
+        if ($title) {
+            $song->setTitle($title);
+        }
+        if ($lyrics !== null) {
+            $song->setLyrics($lyrics);
+        }
+        if ($date) {
+            try {
+                $song->setDate(new \DateTime($date));
+            } catch (\Exception $e) {
+                return new JsonResponse(['error' => 'Format de date invalide'], Response::HTTP_BAD_REQUEST);
+            }
+        }
+
+        /** @var UploadedFile $file */
+        $file = $request->files->get('image');
+        if ($file instanceof UploadedFile) {
+            $newFilename = uniqid().'.'.$file->guessExtension();
+            try {
+                $file->move($this->mediaDirectory, $newFilename);
+                $song->setImage($newFilename);
+            } catch (FileException $e) {
+                return new JsonResponse(['error' => 'Erreur lors de l’upload du fichier'], Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            $selectedImage = $request->request->get('image');
+            if ($selectedImage) {
+                $song->setImage($selectedImage);
+            }
+        }
+        $this->entityManager->flush();
+        return new JsonResponse(['success' => true]);
+    }
+
+    #[Route('/profile/update/album/{id}', name: 'profile_update_album', methods: ['POST'])]
+    public function updateAlbum(Request $request, int $id): JsonResponse
+    {
+        $user = $this->getUser();
+        $album = $this->albumRepository->find($id);
+        if (!$album || $album->getCreatedBy() !== $user) {
+            return new JsonResponse(['error' => 'Album non trouvé ou accès non autorisé'], Response::HTTP_NOT_FOUND);
+        }
+        $title = $request->request->get('title');
+        if ($title) {
+            $album->setTitle($title);
+        }
+        /** @var UploadedFile $file */
+        $file = $request->files->get('image');
+        if ($file instanceof UploadedFile) {
+            $newFilename = uniqid().'.'.$file->guessExtension();
+            try {
+                $file->move($this->mediaDirectory, $newFilename);
+                $album->setImage($newFilename);
+            } catch (FileException $e) {
+                return new JsonResponse(['error' => 'Erreur lors de l’upload du fichier'], Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            $selectedImage = $request->request->get('image');
+            if ($selectedImage) {
+                $song->setImage($selectedImage);
+            }
+        }
+        $this->entityManager->flush();
+        return new JsonResponse(['success' => true]);
+    }
+
+    #[Route('/profile/update/artist/{id}', name: 'profile_update_artist', methods: ['POST'])]
+    public function updateArtist(Request $request, int $id): JsonResponse
+    {
+        $user = $this->getUser();
+        $artist = $this->artistRepository->find($id);
+        if (!$artist || $artist->getCreatedBy() !== $user) {
+            return new JsonResponse(['error' => 'Artiste non trouvé ou accès non autorisé'], Response::HTTP_NOT_FOUND);
+        }
+        $name = $request->request->get('name');
+        if ($name) {
+            $artist->setName($name);
+        }
+        /** @var UploadedFile $file */
+        $file = $request->files->get('image');
+        if ($file instanceof UploadedFile) {
+            $newFilename = uniqid().'.'.$file->guessExtension();
+            try {
+                $file->move($this->mediaDirectory, $newFilename);
+                $artist->setImage($newFilename);
+            } catch (FileException $e) {
+                return new JsonResponse(['error' => 'Erreur lors de l’upload du fichier'], Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            $selectedImage = $request->request->get('image');
+            if ($selectedImage) {
+                $song->setImage($selectedImage);
+            }
+        }
+        $this->entityManager->flush();
+        return new JsonResponse(['success' => true]);
     }
 }

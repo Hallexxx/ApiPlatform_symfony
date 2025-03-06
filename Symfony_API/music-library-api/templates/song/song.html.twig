@@ -114,6 +114,84 @@
             .favorited {
                 color: red !important;
             }
+
+            .add-song-btn {
+                margin-top: 10px; /* petit écart sous le select artiste */
+                display: block;
+            }
+            .add-song-btn {
+                background-color: #28a745;
+                color: #fff;
+                border: none;
+                padding: 10px 20px;
+                font-size: 1rem;
+                border-radius: 5px;
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+            .add-song-btn:hover {
+                transform: scale(1.1);
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            }
+
+            .my-swal-popup {
+                display: flex !important;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .swal2-title{
+                margin-top: 1vh;
+            }
+
+            .swal2-html-container{
+                margin-top: 1vh;
+                display: flex !important;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .my-swal-popup input,
+            .my-swal-popup textarea,
+            .my-swal-popup button {
+                width: 100%;
+                max-width: 400px;
+                margin: 5px 0;
+            }
+            
+            .swal2-actions {
+                display: flex !important;
+                flex-direction: row;
+                justify-content: center;
+                gap: 10px;
+                margin-top: 15px;
+            }
+            
+            #file-name-display {
+                margin-top: 5px;
+                font-size: 0.9rem;
+                color: #fff;
+            }
+            
+            #choose-from-media {
+                background-color: #f0ad4e;
+                color: #fff;
+                border: none;
+                padding: 8px 12px;
+                border-radius: 4px;
+                cursor: pointer;
+                margin-top: 10px;
+                width: 100%;
+                max-width: 400px;
+            }
+            
+            .media-img.selected {
+                border: 3px solid #f0ad4e;
+                transform: scale(1.1);
+                transition: transform 0.3s, border 0.3s;
+            }
+
             footer {
                 background-color: #222;
                 color: #fff;
@@ -198,6 +276,11 @@
                                 <option value="">Filtrer par album</option>
                             </select>
                         </div>
+                        {% if app.user %}
+                            <button id="add-song-btn" class="btn btn-success add-song-btn">
+                                <i class="bi bi-plus-circle"></i> Ajouter une chanson
+                            </button>
+                        {% endif %}
                     </div>
                 </div>
 
@@ -397,6 +480,255 @@
                     });
                 });
             });
+
+            class SongAdder {
+                constructor() {
+                    this.addSongBtn = document.getElementById('add-song-btn');
+                    if (this.addSongBtn) {
+                    this.addSongBtn.addEventListener('click', this.openAddSongModal.bind(this));
+                    // Animation initiale du bouton avec GSAP
+                    gsap.fromTo(this.addSongBtn, { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.5 });
+                    }
+                }
+
+                openAddSongModal() {
+                    Swal.fire({
+                    title: 'Ajouter une chanson',
+                    html: this.getModalHtml(),
+                    width: '80%',
+                    customClass: { popup: 'swal2-popup my-swal-popup' },
+                    focusConfirm: false,
+                    showCancelButton: true,
+                    confirmButtonText: 'Ajouter',
+                    didOpen: () => {
+                        // Animation des inputs
+                        gsap.from("#swal-title, #swal-lyrics, #swal-date, #swal-length, #swal-album", {
+                        duration: 0.5, y: -10, opacity: 0, stagger: 0.1
+                        });
+                        // Déclenchement des uploads depuis l'ordinateur
+                        document.getElementById('upload-image-btn').addEventListener('click', () => {
+                        document.getElementById('swal-image').click();
+                        });
+                        document.getElementById('upload-mp3-btn').addEventListener('click', () => {
+                        document.getElementById('swal-mp3').click();
+                        });
+                        // Gestion des changements sur les inputs de fichiers
+                        const fileInput = document.getElementById('swal-image');
+                        const fileNameDisplay = document.getElementById('file-name-display');
+                        fileInput.addEventListener('change', () => {
+                        fileNameDisplay.textContent = fileInput.files.length > 0 ? fileInput.files[0].name : "Aucun fichier choisi";
+                        });
+                        const mp3Input = document.getElementById('swal-mp3');
+                        const mp3FileNameDisplay = document.getElementById('mp3-file-name-display');
+                        mp3Input.addEventListener('change', () => {
+                        mp3FileNameDisplay.textContent = mp3Input.files.length > 0 ? mp3Input.files[0].name : "Aucun fichier mp3/mp4 choisi";
+                        });
+                        // Boutons pour sélectionner depuis la médiathèque
+                        document.getElementById('choose-from-media').addEventListener('click', () => {
+                        this.loadMediaLibrary();
+                        });
+                        document.getElementById('choose-mp3-from-media').addEventListener('click', () => {
+                        this.loadMp3MediaLibrary();
+                        });
+                    },
+                    preConfirm: () => {
+                        // Récupération et validation du titre
+                        const title = document.getElementById('swal-title').value.trim();
+                        if (!title) {
+                        Swal.showValidationMessage("Veuillez renseigner le titre");
+                        return false;
+                        }
+                        const lyrics = document.getElementById('swal-lyrics').value;
+                        const date = document.getElementById('swal-date').value;
+                        const length = document.getElementById('swal-length').value;
+                        const albumId = document.getElementById('swal-album').value; // Nouveau champ album
+                        if (!albumId) {
+                        Swal.showValidationMessage("Veuillez sélectionner un album");
+                        return false;
+                        }
+                        const fileInput = document.getElementById('swal-image');
+                        const mp3Input = document.getElementById('swal-mp3');
+                        let formData = new FormData();
+                        formData.append('title', title);
+                        formData.append('lyrics', lyrics);
+                        formData.append('date', date);
+                        formData.append('length', length);
+                        formData.append('album', albumId); // Ajout de l'album choisi
+                        // Gestion de l'image
+                        if (fileInput.files.length > 0) {
+                        formData.append('image', fileInput.files[0]);
+                        } else {
+                        const selectedImage = document.getElementById('file-name-display').textContent;
+                        if (selectedImage && selectedImage !== "Aucun fichier choisi") {
+                            formData.append('image', selectedImage);
+                        }
+                        }
+                        // Gestion du fichier mp3/mp4
+                        if (mp3Input.files.length > 0) {
+                        formData.append('mp3', mp3Input.files[0]);
+                        } else {
+                        const selectedMp3 = document.getElementById('mp3-file-name-display').textContent;
+                        if (selectedMp3 && selectedMp3 !== "Aucun fichier mp3/mp4 choisi") {
+                            formData.append('mp3', selectedMp3);
+                        }
+                        }
+                        return formData;
+                    }
+                    }).then((result) => {
+                    if (result.isConfirmed) {
+                        const formData = result.value;
+                        // N'oubliez pas d'augmenter post_max_size et upload_max_filesize dans php.ini (par exemple, 20M)
+                        fetch("{{ path('song_add') }}", {
+                        method: 'POST',
+                        body: formData
+                        })
+                        .then(response => response.json())
+                        .then(json => {
+                        if (json.success) {
+                            Swal.fire('Chanson ajoutée', '', 'success').then(() => {
+                            location.reload();
+                            });
+                        } else {
+                            Swal.fire('Erreur', json.error || 'Une erreur est survenue', 'error');
+                        }
+                        })
+                        .catch(err => {
+                        Swal.fire('Erreur', 'Une erreur est survenue', 'error');
+                        });
+                    }
+                    });
+                }
+
+                getModalHtml() {
+                    return `
+                    <input type="text" id="swal-title" class="swal2-input" placeholder="Titre" required>
+                    <textarea id="swal-lyrics" class="swal2-textarea" placeholder="Paroles"></textarea>
+                    <input type="date" id="swal-date" class="swal2-input">
+                    <input type="number" id="swal-length" class="swal2-input" placeholder="Longueur (secondes)">
+                    <!-- Nouveau champ select pour l'album -->
+                    <select id="swal-album" class="swal2-input" required>
+                        <option value="">Sélectionnez un album</option>
+                        {% for album in albums %}
+                        <option value="{{ album.id }}">{{ album.title }}</option>
+                        {% endfor %}
+                    </select>
+                    
+                    <!-- Section Image -->
+                    <input type="file" id="swal-image" class="swal2-input" accept="image/*" style="display:none;">
+                    <div id="file-name-display">Aucun fichier choisi</div>
+                    <button type="button" id="choose-from-media" class="btn btn-warning">Choisir image depuis la médiathèque</button>
+                    <button type="button" id="upload-image-btn" class="btn btn-info">Téléverser depuis l'ordinateur</button>
+                    <div id="media-library-container" style="display:none;"></div>
+                    
+                    <!-- Section MP3/MP4 -->
+                    <input type="file" id="swal-mp3" class="swal2-input" accept="audio/*, video/*" style="display:none;">
+                    <div id="mp3-file-name-display">Aucun fichier mp3/mp4 choisi</div>
+                    <button type="button" id="choose-mp3-from-media" class="btn btn-warning">Choisir mp3/mp4 depuis la médiathèque</button>
+                    <button type="button" id="upload-mp3-btn" class="btn btn-info">Téléverser mp3/mp4 depuis l'ordinateur</button>
+                    <div id="mp3-media-library-container" style="display:none;"></div>
+                    `;
+                }
+
+                loadMediaLibrary() {
+                    fetch('/media-list')
+                    .then(response => {
+                        if (!response.ok) {
+                        throw new Error("HTTP error " + response.status);
+                        }
+                        return response.json();
+                    })
+                    .then(images => {
+                        const container = document.getElementById('media-library-container');
+                        let mediaHtml = '<div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">';
+                        images.forEach(img => {
+                        mediaHtml += `<img src="/media/${img}" alt="${img}" class="media-img" style="width: 100px; height: 100px; object-fit: cover; cursor: pointer;">`;
+                        });
+                        mediaHtml += '</div>';
+                        mediaHtml += `
+                        <div style="display: flex; justify-content: center; gap: 10px; margin-top: 10px;">
+                            <button type="button" id="media-valider" class="btn btn-success" style="max-width: 150px;">Valider</button>
+                            <button type="button" id="media-annuler" class="btn btn-secondary" style="max-width: 150px;">Annuler</button>
+                        </div>
+                        `;
+                        container.innerHTML = mediaHtml;
+                        container.style.display = 'block';
+                        let selectedUrl = null;
+                        container.querySelectorAll('.media-img').forEach(img => {
+                        img.addEventListener('click', function() {
+                            container.querySelectorAll('.media-img').forEach(i => i.classList.remove('selected'));
+                            this.classList.add('selected');
+                            selectedUrl = this.getAttribute('src').split('/media/')[1];
+                        });
+                        });
+                        document.getElementById('media-valider').addEventListener('click', () => {
+                        container.style.display = 'none';
+                        const fileNameDisplay = document.getElementById('file-name-display');
+                        if (selectedUrl) {
+                            fileNameDisplay.textContent = selectedUrl;
+                        }
+                        });
+                        document.getElementById('media-annuler').addEventListener('click', () => {
+                        container.style.display = 'none';
+                        });
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        Swal.fire('Erreur', 'Impossible de charger la médiathèque', 'error');
+                    });
+                }
+
+                loadMp3MediaLibrary() {
+                    fetch('/media-list/mp3')
+                    .then(response => {
+                        if (!response.ok) {
+                        throw new Error("HTTP error " + response.status);
+                        }
+                        return response.json();
+                    })
+                    .then(mp3files => {
+                        const container = document.getElementById('mp3-media-library-container');
+                        let mediaHtml = '<div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">';
+                        mp3files.forEach(file => {
+                        mediaHtml += `<div class="mp3-file" style="cursor:pointer; padding:5px; border:1px solid #fff; border-radius:5px;">${file}</div>`;
+                        });
+                        mediaHtml += '</div>';
+                        mediaHtml += `
+                        <div style="display: flex; justify-content: center; gap: 10px; margin-top: 10px;">
+                            <button type="button" id="mp3-media-valider" class="btn btn-success" style="max-width: 150px;">Valider</button>
+                            <button type="button" id="mp3-media-annuler" class="btn btn-secondary" style="max-width: 150px;">Annuler</button>
+                        </div>
+                        `;
+                        container.innerHTML = mediaHtml;
+                        container.style.display = 'block';
+                        let selectedMp3 = null;
+                        container.querySelectorAll('.mp3-file').forEach(div => {
+                        div.addEventListener('click', function() {
+                            container.querySelectorAll('.mp3-file').forEach(i => i.style.borderColor = "#fff");
+                            this.style.borderColor = "#28a745";
+                            selectedMp3 = this.textContent;
+                        });
+                        });
+                        document.getElementById('mp3-media-valider').addEventListener('click', () => {
+                        container.style.display = 'none';
+                        const mp3FileNameDisplay = document.getElementById('mp3-file-name-display');
+                        if (selectedMp3) {
+                            mp3FileNameDisplay.textContent = selectedMp3;
+                        }
+                        });
+                        document.getElementById('mp3-media-annuler').addEventListener('click', () => {
+                        container.style.display = 'none';
+                        });
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        Swal.fire('Erreur', 'Impossible de charger la médiathèque mp3/mp4', 'error');
+                    });
+                }
+                }
+
+                document.addEventListener('DOMContentLoaded', () => {
+                new SongAdder();
+                });
         </script>
     </body>
 </html>

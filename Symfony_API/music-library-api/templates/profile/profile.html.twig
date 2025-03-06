@@ -90,33 +90,62 @@
             #profile-container {
                 margin-top: 120px;
             }
-            
+
+            .pro{
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
             .profile-section {
-                padding: 20px;
+                padding: 30px 20px;
                 border-bottom: 1px solid #555;
-                margin-bottom: 30px;
+                margin-bottom: 40px;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
+                width: 80%;
             }
+
             .profile-info {
                 display: flex;
                 align-items: center;
-                gap: 20px;
             }
-            .profile-info img {
-                width: 80px;
-                height: 80px;
+
+            .profile-picture {
+                flex-shrink: 0;
+            }
+
+            .profile-picture img,
+            .profile-picture i {
+                width: 120px;
+                height: 120px;
                 border-radius: 50%;
                 object-fit: cover;
             }
+
             .profile-details {
-                font-size: 1.1rem;
+                flex-grow: 1;
+                margin-left: 30px;
+                text-align: left;
+                font-size: 1.3rem;
             }
+
+            .profile-details div {
+                margin-bottom: 8px;
+            }
+            
             .edit-profile {
-                cursor: pointer;
-                font-size: 1.5rem;
                 color: #f0ad4e;
+                font-size: 1.5rem;
+                text-decoration: none;
+                transition: transform 0.3s ease, color 0.3s ease;
+            }
+
+            .edit-profile:hover {
+                transform: scale(1.1);
+                cursor: pointer;
+                color: #ffd700;
             }
             
             .section-title {
@@ -125,11 +154,14 @@
                 margin: 40px 0 20px;
                 text-align: center;
             }
+
             .creations-cards {
                 display: flex;
                 flex-wrap: wrap;
                 gap: 15px;
+                margin: 1vh 0 0 0;
             }
+
             .card {
                 width: 200px;
                 height: 200px;
@@ -140,10 +172,13 @@
                 box-shadow: 0 4px 15px rgba(255,255,255,0.2);
                 transition: transform 0.3s ease, box-shadow 0.3s ease;
             }
+
             .card:hover {
                 transform: scale(1.05);
+                cursor: pointer;
                 box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             }
+
             .card img {
                 position: absolute;
                 top: 0;
@@ -152,6 +187,7 @@
                 height: 100%;
                 object-fit: cover;
             }
+
             .card-title-container {
                 position: absolute;
                 bottom: 0;
@@ -160,6 +196,7 @@
                 text-align: center;
                 padding: 5px;
             }
+            
             .card-title-container h5 {
                 margin: 0;
                 color: #fff;
@@ -177,8 +214,25 @@
                 color: #f0ad4e;
                 transition: transform 0.3s ease;
             }
+
             .card .edit-icon:hover {
                 transform: scale(1.1);
+            }
+
+            #file-name-display {
+                margin-top: 5px;
+                font-size: 0.9rem;
+                color: #fff;
+            }
+            
+            #choose-from-media {
+                background-color: #f0ad4e;
+                color: #fff;
+                border: none;
+                padding: 8px 12px;
+                border-radius: 4px;
+                cursor: pointer;
+                margin-top: 10px;
             }
 
             footer {
@@ -187,6 +241,65 @@
                 padding: 20px 0;
                 margin-top: 5vh;
                 text-align: center;
+            }
+
+            .my-swal-popup {
+                display: flex !important;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .swal2-title{
+                margin-top: 1vh;
+            }
+
+            .swal2-html-container{
+                margin-top: 1vh;
+                display: flex !important;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .my-swal-popup input,
+            .my-swal-popup textarea,
+            .my-swal-popup button {
+                width: 100%;
+                max-width: 400px;
+                margin: 5px 0;
+            }
+            
+            .swal2-actions {
+                display: flex !important;
+                flex-direction: row;
+                justify-content: center;
+                gap: 10px;
+                margin-top: 15px;
+            }
+            
+            #file-name-display {
+                margin-top: 5px;
+                font-size: 0.9rem;
+                color: #fff;
+            }
+            
+            #choose-from-media {
+                background-color: #f0ad4e;
+                color: #fff;
+                border: none;
+                padding: 8px 12px;
+                border-radius: 4px;
+                cursor: pointer;
+                margin-top: 10px;
+                width: 100%;
+                max-width: 400px;
+            }
+            
+            .media-img.selected {
+                border: 3px solid #f0ad4e;
+                transform: scale(1.1);
+                transition: transform 0.3s, border 0.3s;
             }
         </style>
     </head>
@@ -234,84 +347,125 @@
                 </div>
             </div>
         </nav>
+
         <div class="container" id="profile-container">
-            <!-- Profil Personnel -->
-            <div class="profile-section">
-            <div class="profile-info">
-                {% if user.profilePicture %}
-                <img src="/media/{{ user.profilePicture }}" alt="Photo de profil">
-                {% else %}
-                <i class="bi bi-person-circle" style="font-size:80px; color:#777;"></i>
-                {% endif %}
-                <div class="profile-details">
-                <div><strong>Nom d'utilisateur :</strong> {{ user.username }}</div>
-                <div><strong>Email :</strong> {{ user.email }}</div>
-                {# Ajoutez d'autres infos personnelles si nécessaire #}
+            <div class="pro">
+                <div class="profile-section">
+                    <div class="profile-info d-flex align-items-center">
+                        <div class="profile-picture">
+                            {% if user.profilePicture %}
+                            <img src="/media/{{ user.profilePicture }}" alt="Photo de profil">
+                            {% else %}
+                            <i class="bi bi-person-circle" style="font-size:120px; color:#777;"></i>
+                            {% endif %}
+                        </div>
+                        <div class="profile-details">
+                            <div><strong>Nom d'utilisateur :</strong> <span id="profile-username">{{ user.username }}</span></div>
+                            <div><strong>Email :</strong> <span id="profile-email">{{ user.email }}</span></div>
+                            <div><strong>Mot de passe :</strong> ****</div>
+                        </div>
+                    </div>
+                    <div class="edit-profile" title="Modifier votre profil" id="edit-profile-btn">
+                        <i class="bi bi-pencil-square"></i>
+                    </div>
                 </div>
             </div>
-            <div class="edit-profile" title="Modifier votre profil">
-                <i class="bi bi-pencil-square"></i>
-            </div>
-            </div>
 
-            <!-- Vos Créations -->
             <h2 class="section-title">Vos Créations</h2>
 
             {% if songs|length %}
-            <div class="mb-4">
-                <h3>Musiques</h3>
-                <div class="creations-cards">
-                {% for song in songs %}
-                    <div class="card">
-                    <div class="edit-icon" title="Modifier">
-                        <i class="bi bi-pencil-square"></i>
+                <div class="mb-4">
+                    <h3>Musiques</h3>
+                    <div class="creations-cards">
+                        {% for song in songs %}
+                            {% set albumIndex = 1 %}
+                            {% for album in song.album.artist.albums %}
+                                {% if album.id == song.album.id %}
+                                    {% set albumIndex = loop.index %}
+                                {% endif %}
+                            {% endfor %}
+
+                            {% set songIndex = 1 %}
+                            {% for s in song.album.songs %}
+                                {% if s.id == song.id %}
+                                    {% set songIndex = loop.index %}
+                                {% endif %}
+                            {% endfor %}
+
+                            <a href="{{ path('song_details', {
+                                    'artistId': song.album.artist.id,
+                                    'albumIndex': albumIndex,
+                                    'songIndex': songIndex
+                            }) }}">
+                                <div class="card"
+                                    data-type="song"
+                                    data-id="{{ song.id }}"
+                                    data-index="{{ songIndex }}"
+                                    data-albumindex="{{ albumIndex }}"
+                                    data-artistid="{{ song.album.artist.id }}"
+                                    data-title="{{ song.title }}"
+                                    data-image="{{ song.image }}"
+                                    data-lyrics="{{ song.lyrics }}"
+                                    data-date="{{ song.date|date('Y-m-d') }}">
+                                    <img src="/media/{{ song.image }}" alt="{{ song.title }}">
+                                    <div class="edit-icon" title="Modifier" data-type="song">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </div>
+                                    <div class="card-title-container">
+                                        <h5 class="card-title">{{ song.title }}</h5>
+                                    </div>
+                                </div>
+                            </a>
+                        {% endfor %}
                     </div>
-                    <img src="/media/{{ song.image }}" alt="{{ song.title }}">
-                    <div class="card-title-container">
-                        <h5 class="card-title">{{ song.title }}</h5>
-                    </div>
-                    </div>
-                {% endfor %}
                 </div>
-            </div>
             {% endif %}
 
             {% if albums|length %}
-            <div class="mb-4">
-                <h3>Albums</h3>
-                <div class="creations-cards">
-                {% for album in albums %}
-                    <div class="card">
-                    <div class="edit-icon" title="Modifier">
-                        <i class="bi bi-pencil-square"></i>
+                <div class="mb-4">
+                    <h3>Albums</h3>
+                    <div class="creations-cards">
+                        {% for album in albums %}
+                            {% set albumIndex = 1 %}
+                            {% for a in album.artist.albums %}
+                                {% if a.id == album.id %}
+                                    {% set albumIndex = loop.index %}
+                                {% endif %}
+                            {% endfor %}
+
+                            <div class="card" data-type="album" data-id="{{ album.id }}" data-index="{{ albumIndex }}" data-artistid="{{ album.artist.id }}"
+                                data-title="{{ album.title }}" data-image="{{ album.image }}">
+                                <div class="edit-icon" title="Modifier" data-type="album">
+                                    <i class="bi bi-pencil-square"></i>
+                                </div>
+                                <img src="/media/{{ album.image }}" alt="{{ album.title }}">
+                                <div class="card-title-container">
+                                    <h5 class="card-title">{{ album.title }}</h5>
+                                </div>
+                            </div>
+                        {% endfor %}
                     </div>
-                    <img src="/media/{{ album.image }}" alt="{{ album.title }}">
-                    <div class="card-title-container">
-                        <h5 class="card-title">{{ album.title }}</h5>
-                    </div>
-                    </div>
-                {% endfor %}
                 </div>
-            </div>
             {% endif %}
 
             {% if artists|length %}
-            <div class="mb-4">
-                <h3>Artistes</h3>
-                <div class="creations-cards">
-                {% for artist in artists %}
-                    <div class="card">
-                    <div class="edit-icon" title="Modifier">
-                        <i class="bi bi-pencil-square"></i>
+                <div class="mb-4">
+                    <h3>Artistes</h3>
+                    <div class="creations-cards">
+                        {% for artist in artists %}
+                            <div class="card"  data-type="artist" -id="{{ artist.id }}" data-index="{{ artist.id }}" data-name="{{ artist.name }}"
+                                data-image="{{ artist.image }}">
+                                <div class="edit-icon" title="Modifier" data-type="artist">
+                                    <i class="bi bi-pencil-square"></i>
+                                </div>
+                                <img src="/media/{{ artist.image }}" alt="{{ artist.name }}">
+                                <div class="card-title-container">
+                                    <h5 class="card-title">{{ artist.name }}</h5>
+                                </div>
+                            </div>
+                        {% endfor %}
                     </div>
-                    <img src="/media/{{ artist.image }}" alt="{{ artist.name }}">
-                    <div class="card-title-container">
-                        <h5 class="card-title">{{ artist.name }}</h5>
-                    </div>
-                    </div>
-                {% endfor %}
                 </div>
-            </div>
             {% endif %}
         </div>
 
@@ -323,35 +477,229 @@
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.10.4/gsap.min.js"></script>
         <script>
-            // Gestion du clic sur l'icône "pencil" du profil
-            document.querySelector('.edit-profile').addEventListener('click', function() {
-            Swal.fire({
-                title: 'Modifier votre profil',
-                html: `
-                <input type="text" id="edit-username" class="swal2-input" placeholder="Nom d'utilisateur" value="{{ user.username }}">
-                <input type="email" id="edit-email" class="swal2-input" placeholder="Email" value="{{ user.email }}">
-                `,
-                focusConfirm: false,
-                showCancelButton: true,
-                confirmButtonText: 'Enregistrer',
-                preConfirm: () => {
-                // Ici, récupérez les valeurs et envoyez une requête Ajax pour mettre à jour le profil.
-                // Cette partie est à implémenter selon vos besoins.
-                Swal.fire('Profil mis à jour', '', 'success');
-                }
-            });
-            });
-
-            // Gestion des icônes "pencil" sur les créations
-            document.querySelectorAll('.card .edit-icon').forEach(icon => {
-            icon.addEventListener('click', function(e) {
-                e.stopPropagation();
+            document.getElementById('edit-profile-btn').addEventListener('click', function() {
                 Swal.fire({
-                title: 'Modifier',
-                text: 'Formulaire de modification à implémenter ici.',
-                icon: 'info'
+                    title: 'Modifier votre profil',
+                    html: `
+                        <input type="text" id="swal-username" class="swal2-input" placeholder="Nom d'utilisateur" value="{{ user.username }}">
+                        <input type="email" id="swal-email" class="swal2-input" placeholder="Email" value="{{ user.email }}">
+                    `,
+                    focusConfirm: false,
+                    showCancelButton: true,
+                    confirmButtonText: 'Enregistrer',
+                    preConfirm: () => {
+                        return {
+                            username: document.getElementById('swal-username').value,
+                            email: document.getElementById('swal-email').value
+                        }
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const data = result.value;
+                        fetch("{{ path('profile_update') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded'
+                            },
+                            body: new URLSearchParams(data).toString()
+                        })
+                        .then(response => response.json())
+                        .then(json => {
+                            if (json.success) {
+                                Swal.fire('Profil mis à jour', '', 'success');
+                                document.getElementById('profile-username').textContent = json.username;
+                                document.getElementById('profile-email').textContent = json.email;
+                            } else {
+                                Swal.fire('Erreur', json.error || 'Une erreur est survenue', 'error');
+                            }
+                        })
+                        .catch(err => {
+                            Swal.fire('Erreur', 'Une erreur est survenue', 'error');
+                        });
+                    }
                 });
             });
+            function loadMediaLibraryInPlace(callback) {
+                fetch('/media-list')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("HTTP error " + response.status);
+                    }
+                    return response.json();
+                })
+                .then(images => {
+                    const container = document.getElementById('media-library-container');
+                    let mediaHtml = '<div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">';
+                    images.forEach(img => {
+                        mediaHtml += `<img src="/media/${img}" alt="${img}" class="media-img" style="width: 100px; height: 100px; object-fit: cover; cursor: pointer;">`;
+                    });
+                    mediaHtml += '</div>';
+                    mediaHtml += `
+                    <div style="display: flex; justify-content: center; gap: 10px; margin-top: 10px;">
+                        <button type="button" id="media-valider" class="btn btn-success" style="max-width: 150px;">Valider</button>
+                        <button type="button" id="media-annuler" class="btn btn-secondary" style="max-width: 150px;">Annuler</button>
+                    </div>
+                    `;
+                    container.innerHTML = mediaHtml;
+                    container.style.display = 'block';
+                    let selectedUrl = null;
+                    container.querySelectorAll('.media-img').forEach(img => {
+                        img.addEventListener('click', function() {
+                            container.querySelectorAll('.media-img').forEach(i => i.classList.remove('selected'));
+                            this.classList.add('selected');
+                            selectedUrl = this.getAttribute('src').split('/media/')[1];
+                        });
+                    });
+                    document.getElementById('media-valider').addEventListener('click', () => {
+                        container.style.display = 'none';
+                        callback(selectedUrl);
+                    });
+                    document.getElementById('media-annuler').addEventListener('click', () => {
+                        container.style.display = 'none';
+                    });
+                })
+                .catch(err => {
+                    console.error(err);
+                    Swal.fire('Erreur', 'Impossible de charger la médiathèque', 'error');
+                });
+            }
+
+            document.querySelectorAll('.card .edit-icon').forEach(icon => {
+                icon.addEventListener('click', function(e) {
+                    e.preventDefault(); 
+                    e.stopPropagation(); 
+                    const card = this.closest('.card');
+                    const type = card.getAttribute('data-type');
+                    const id = card.getAttribute('data-id');
+                    let htmlContent = '';
+                    let endpoint = '';
+
+                    if (type === 'song') {
+                        htmlContent = `
+                        <input type="text" id="swal-title" class="swal2-input" placeholder="Titre" value="${card.getAttribute('data-title') || ''}">
+                        <input type="file" id="swal-image" class="swal2-input">
+                        <div id="file-name-display">Aucun fichier choisi</div>
+                        <button type="button" id="choose-from-media" class="btn btn-warning">Choisir depuis la médiathèque</button>
+                        <div id="media-library-container"></div>
+                        <textarea id="swal-lyrics" class="swal2-textarea" placeholder="Paroles">${card.getAttribute('data-lyrics') || ''}</textarea>
+                        <input type="date" id="swal-date" class="swal2-input" value="${card.getAttribute('data-date') || ''}">
+                        `;
+                        endpoint = "{{ path('profile_update_song', {'id': 'SOME_ID'}) }}".replace('SOME_ID', id);
+                    } else if (type === 'album') {
+                        htmlContent = `
+                        <input type="text" id="swal-title" class="swal2-input" placeholder="Titre" value="${card.getAttribute('data-title') || ''}">
+                        <input type="file" id="swal-image" class="swal2-input">
+                        <div id="file-name-display">Aucun fichier choisi</div>
+                        <button type="button" id="choose-from-media" class="btn btn-warning">Choisir depuis la médiathèque</button>
+                        <div id="media-library-container"></div>
+                        `;
+                        endpoint = "{{ path('profile_update_album', {'id': 'SOME_ID'}) }}".replace('SOME_ID', id);
+                    } else if (type === 'artist') {
+                        htmlContent = `
+                        <input type="text" id="swal-name" class="swal2-input" placeholder="Nom" value="${card.getAttribute('data-name') || ''}">
+                        <input type="file" id="swal-image" class="swal2-input">
+                        <div id="file-name-display">Aucun fichier choisi</div>
+                        <button type="button" id="choose-from-media" class="btn btn-warning">Choisir depuis la médiathèque</button>
+                        <div id="media-library-container"></div>
+                        `;
+                        endpoint = "{{ path('profile_update_artist', {'id': 'SOME_ID'}) }}".replace('SOME_ID', id);
+                    }
+
+                    Swal.fire({
+                        title: 'Modifier ' + type,
+                        html: htmlContent,
+                        width: '80%',
+                        customClass: { popup: 'swal2-popup my-swal-popup' },
+                        focusConfirm: false,
+                        showCancelButton: true,
+                        confirmButtonText: 'Enregistrer',
+                        didOpen: () => {
+                            const fileInput = document.getElementById('swal-image');
+                            const fileNameDisplay = document.getElementById('file-name-display');
+                            fileInput.addEventListener('change', () => {
+                                if (fileInput.files.length > 0) {
+                                    fileNameDisplay.textContent = fileInput.files[0].name;
+                                } else {
+                                    fileNameDisplay.textContent = "Aucun fichier choisi";
+                                }
+                            });
+                            document.getElementById('choose-from-media').addEventListener('click', () => {
+                                loadMediaLibraryInPlace((selectedUrl) => {
+                                    if (selectedUrl) {
+                                        fileNameDisplay.textContent = selectedUrl;
+                                    }
+                                });
+                            });
+                        },
+                        preConfirm: () => {
+                            const formData = new FormData();
+                            if (type === 'song') {
+                                formData.append('title', document.getElementById('swal-title').value);
+                                formData.append('lyrics', document.getElementById('swal-lyrics').value);
+                                formData.append('date', document.getElementById('swal-date').value);
+                            } else if (type === 'album') {
+                                formData.append('title', document.getElementById('swal-title').value);
+                            } else if (type === 'artist') {
+                                formData.append('name', document.getElementById('swal-name').value);
+                            }
+                            const fileInput = document.getElementById('swal-image');
+                            if (fileInput.files.length > 0) {
+                                formData.append('image', fileInput.files[0]);
+                            } else {
+                                const selectedUrl = document.getElementById('file-name-display').textContent;
+                                if (selectedUrl !== "Aucun fichier choisi") {
+                                    formData.append('image', selectedUrl);
+                                }
+                            }
+                            return formData;
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            const formData = result.value;
+                            fetch(endpoint, {
+                                method: 'POST',
+                                body: formData
+                            })
+                            .then(response => response.json())
+                            .then(json => {
+                                if (json.success) {
+                                    Swal.fire('Mis à jour', '', 'success').then(() => {
+                                        location.reload();
+                                    });
+                                } else {
+                                    Swal.fire('Erreur', json.error || 'Une erreur est survenue', 'error');
+                                }
+                            })
+                            .catch(err => {
+                                Swal.fire('Erreur', 'Une erreur est survenue', 'error');
+                            });
+                        }
+                    });
+                });
+            });
+
+            document.querySelectorAll('.card').forEach(card => {
+                card.addEventListener('click', function(e) {
+                    // Si le clic provient d'un élément (comme l'edit-icon) qui ne doit pas déclencher la redirection, on sort.
+                    if (e.target.closest('.edit-icon')) return;
+
+                    const type = this.dataset.type;
+                    const index = this.dataset.index; // Cet index correspondra à celui attendu dans l'URL
+
+                    if (type === 'album') {
+                        // Pour l'album, on doit aussi disposer de l'id de l'artiste associé (data-artistid)
+                        const artistId = this.dataset.artistid;
+                        window.location.href = `/artists/${artistId}/albums/${index}`;
+                    } else if (type === 'song') {
+                        // Pour la chanson, on attend également les infos sur l'album et l'artiste.
+                        const artistId = this.dataset.artistid;
+                        const albumIndex = this.dataset.albumindex;
+                        window.location.href = `/artists/${artistId}/albums/${albumIndex}/songs/${index}`;
+                    } else if (type === 'artist') {
+                        // Pour l'artiste, on redirige vers la page de détails de l'artiste.
+                        window.location.href = `/artists/${index}`;
+                    }
+                });
             });
         </script>
     </body>

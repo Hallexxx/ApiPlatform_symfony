@@ -128,6 +128,7 @@
             }
             .card:hover {
                 transform: scale(1.05);
+                cursor: pointer;
                 box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             }
             .card img {
@@ -248,15 +249,36 @@
                 <h2>Vos Musiques Favorites</h2>
                 <div class="favorites-cards">
                     {% for fav in favoris %}
-                        {% if fav.song_id %}
-                            <div class="favorite-card" data-type="song" data-name="{{ fav.song_title|lower }}">
+                        {% if fav.song %}
+                            {# Calcul de l'index de l'album dans la collection de l'artiste #}
+                            {% set albumIndex = 1 %}
+                            {% for album in fav.song.album.artist.albums %}
+                                {% if album.id == fav.song.album.id %}
+                                    {% set albumIndex = loop.index %}
+                                {% endif %}
+                            {% endfor %}
+
+                            {# Calcul de l'index de la chanson dans la collection de l'album #}
+                            {% set songIndex = 1 %}
+                            {% for s in fav.song.album.songs %}
+                                {% if s.id == fav.song.id %}
+                                    {% set songIndex = loop.index %}
+                                {% endif %}
+                            {% endfor %}
+
+                            <div class="favorite-card" 
+                                data-type="song" 
+                                data-name="{{ fav.song.title|lower }}"
+                                data-artistid="{{ fav.song.album.artist.id }}"
+                                data-albumindex="{{ albumIndex }}"
+                                data-index="{{ songIndex }}">
                                 <div class="card" data-fav-id="{{ fav.id }}">
-                                    <div class="favorite-icon" data-type="song" data-fav-id="{{ fav.id }}" data-name="{{ fav.song_title }}">
+                                    <div class="favorite-icon" data-type="song" data-fav-id="{{ fav.id }}" data-name="{{ fav.song.title }}">
                                         <i class="bi bi-heart-fill favorited"></i>
                                     </div>
-                                    <img src="/media/{{ fav.song_image }}" alt="{{ fav.song_title }}">
+                                    <img src="/media/{{ fav.song.image }}" alt="{{ fav.song.title }}">
                                     <div class="card-title-container">
-                                        <h5 class="card-title">{{ fav.song_title }}</h5>
+                                        <h5 class="card-title">{{ fav.song.title }}</h5>
                                     </div>
                                 </div>
                             </div>
@@ -269,15 +291,26 @@
                 <h2>Vos Albums Favorites</h2>
                 <div class="favorites-cards">
                     {% for fav in favoris %}
-                        {% if fav.album_id %}
-                            <div class="favorite-card" data-type="album" data-name="{{ fav.album_title|lower }}">
+                        {% if fav.album %}
+                            {% set albumIndex = 1 %}
+                            {% for a in fav.album.artist.albums %}
+                                {% if a.id == fav.album.id %}
+                                    {% set albumIndex = loop.index %}
+                                {% endif %}
+                            {% endfor %}
+
+                            <div class="favorite-card" 
+                                data-type="album" 
+                                data-name="{{ fav.album.title|lower }}"
+                                data-artistid="{{ fav.album.artist.id }}"
+                                data-index="{{ albumIndex }}">
                                 <div class="card" data-fav-id="{{ fav.id }}">
-                                    <div class="favorite-icon" data-type="album" data-fav-id="{{ fav.id }}" data-name="{{ fav.album_title }}">
+                                    <div class="favorite-icon" data-type="album" data-fav-id="{{ fav.id }}" data-name="{{ fav.album.title }}">
                                         <i class="bi bi-heart-fill favorited"></i>
                                     </div>
-                                    <img src="/media/{{ fav.album_image }}" alt="{{ fav.album_title }}">
+                                    <img src="/media/{{ fav.album.image }}" alt="{{ fav.album.title }}">
                                     <div class="card-title-container">
-                                        <h5 class="card-title">{{ fav.album_title }}</h5>
+                                        <h5 class="card-title">{{ fav.album.title }}</h5>
                                     </div>
                                 </div>
                             </div>
@@ -290,15 +323,18 @@
                 <h2>Vos Artistes Favorites</h2>
                 <div class="favorites-cards">
                     {% for fav in favoris %}
-                        {% if fav.artist_id %}
-                            <div class="favorite-card" data-type="artist" data-name="{{ fav.artist_name|lower }}">
+                        {% if fav.artist %}
+                            <div class="favorite-card" 
+                                data-type="artist" 
+                                data-name="{{ fav.artist.name|lower }}"
+                                data-index="{{ fav.artist.id }}">
                                 <div class="card" data-fav-id="{{ fav.id }}">
-                                    <div class="favorite-icon" data-type="artist" data-fav-id="{{ fav.id }}" data-name="{{ fav.artist_name }}">
+                                    <div class="favorite-icon" data-type="artist" data-fav-id="{{ fav.id }}" data-name="{{ fav.artist.name }}">
                                         <i class="bi bi-heart-fill favorited"></i>
                                     </div>
-                                    <img src="/media/{{ fav.artist_image }}" alt="{{ fav.artist_name }}">
+                                    <img src="/media/{{ fav.artist.image }}" alt="{{ fav.artist.name }}">
                                     <div class="card-title-container">
-                                        <h5 class="card-title">{{ fav.artist_name }}</h5>
+                                        <h5 class="card-title">{{ fav.artist.name }}</h5>
                                     </div>
                                 </div>
                             </div>
@@ -405,6 +441,26 @@
                 });
             });
 
+            document.querySelectorAll('.favorite-card').forEach(cardContainer => {
+                cardContainer.addEventListener('click', function(e) {
+                    if(e.target.closest('.favorite-icon')) return;
+                    
+                    const type = this.getAttribute('data-type');
+                    if (type === 'song') {
+                        const artistId = this.getAttribute('data-artistid');
+                        const albumIndex = this.getAttribute('data-albumindex');
+                        const songIndex = this.getAttribute('data-index');
+                        window.location.href = `/artists/${artistId}/albums/${albumIndex}/songs/${songIndex}`;
+                    } else if (type === 'album') {
+                        const artistId = this.getAttribute('data-artistid');
+                        const albumIndex = this.getAttribute('data-index');
+                        window.location.href = `/artists/${artistId}/albums/${albumIndex}`;
+                    } else if (type === 'artist') {
+                        const artistId = this.getAttribute('data-index');
+                        window.location.href = `/artists/${artistId}`;
+                    }
+                });
+            });
             window.isAuthenticated = {{ app.user ? 'true' : 'false' }};
         </script>
     </body>

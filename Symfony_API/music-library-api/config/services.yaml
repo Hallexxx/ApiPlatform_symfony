@@ -1,6 +1,8 @@
 # config/services.yaml
 
 parameters:
+    media_directory: '%kernel.project_dir%/public/media'
+
 
 services:
     # default configuration for services in *this* file
@@ -14,5 +16,9 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+    
+    App\Controller\ProfileController:
+        arguments:
+            $mediaDirectory: '%media_directory%'
 
     Symfony\Component\Security\Core\Password\UserPasswordHasherInterface: '@security.password_hasher'
