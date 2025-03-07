@@ -94,6 +94,7 @@ class ProfileController extends AbstractController
             return new JsonResponse(['error' => 'Chanson non trouvée ou accès non autorisé'], Response::HTTP_NOT_FOUND);
         }
 
+        // Mise à jour du titre, paroles et date
         $title = $request->request->get('title');
         $lyrics = $request->request->get('lyrics');
         $date = $request->request->get('date');
@@ -112,15 +113,33 @@ class ProfileController extends AbstractController
             }
         }
 
-        /** @var UploadedFile $file */
-        $file = $request->files->get('image');
-        if ($file instanceof UploadedFile) {
-            $newFilename = uniqid().'.'.$file->guessExtension();
+        // Mise à jour de la durée (en secondes)
+        $duration = $request->request->get('duration');
+        if ($duration) {
+            $song->setLengthInMinutes($duration);
+        }
+
+        // Mise à jour de l'album (id envoyé via le select)
+        $albumId = $request->request->get('album');
+        if ($albumId) {
+            $album = $this->albumRepository->find($albumId);
+            if ($album) {
+                $song->setAlbum($album);
+            } else {
+                return new JsonResponse(['error' => 'Album non trouvé'], Response::HTTP_BAD_REQUEST);
+            }
+        }
+
+        // Gestion de l'image du song
+        /** @var UploadedFile $fileImage */
+        $fileImage = $request->files->get('image');
+        if ($fileImage instanceof UploadedFile) {
+            $newFilename = uniqid().'.'.$fileImage->guessExtension();
             try {
-                $file->move($this->mediaDirectory, $newFilename);
+                $fileImage->move($this->mediaDirectory, $newFilename);
                 $song->setImage($newFilename);
             } catch (FileException $e) {
-                return new JsonResponse(['error' => 'Erreur lors de l’upload du fichier'], Response::HTTP_INTERNAL_SERVER_ERROR);
+                return new JsonResponse(['error' => 'Erreur lors de l’upload de l’image'], Response::HTTP_INTERNAL_SERVER_ERROR);
             }
         } else {
             $selectedImage = $request->request->get('image');
@@ -128,9 +147,29 @@ class ProfileController extends AbstractController
                 $song->setImage($selectedImage);
             }
         }
+
+        // Gestion du fichier mp3
+        /** @var UploadedFile $fileMp3 */
+        $fileMp3 = $request->files->get('file');
+        if ($fileMp3 instanceof UploadedFile) {
+            $newFilenameMp3 = uniqid().'.'.$fileMp3->guessExtension();
+            try {
+                $fileMp3->move($this->mediaDirectory, $newFilenameMp3);
+                $song->setFileurl($newFilenameMp3);
+            } catch (FileException $e) {
+                return new JsonResponse(['error' => 'Erreur lors de l’upload du fichier mp3'], Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            $selectedFile = $request->request->get('file');
+            if ($selectedFile) {
+                $song->setFileurl($selectedFile);
+            }
+        }
+
         $this->entityManager->flush();
         return new JsonResponse(['success' => true]);
     }
+
 
     #[Route('/profile/update/album/{id}', name: 'profile_update_album', methods: ['POST'])]
     public function updateAlbum(Request $request, int $id): JsonResponse
@@ -140,14 +179,28 @@ class ProfileController extends AbstractController
         if (!$album || $album->getCreatedBy() !== $user) {
             return new JsonResponse(['error' => 'Album non trouvé ou accès non autorisé'], Response::HTTP_NOT_FOUND);
         }
+        
+        // Mise à jour du titre
         $title = $request->request->get('title');
         if ($title) {
             $album->setTitle($title);
         }
+        
+        // Mise à jour de la date de sortie
+        $dateStr = $request->request->get('date');
+        if ($dateStr) {
+            try {
+                $album->setDate(new \DateTime($dateStr));
+            } catch (\Exception $e) {
+                return new JsonResponse(['error' => 'Format de date invalide'], Response::HTTP_BAD_REQUEST);
+            }
+        }
+        
+        // Gestion de l'image
         /** @var UploadedFile $file */
         $file = $request->files->get('image');
         if ($file instanceof UploadedFile) {
-            $newFilename = uniqid().'.'.$file->guessExtension();
+            $newFilename = uniqid() . '.' . $file->guessExtension();
             try {
                 $file->move($this->mediaDirectory, $newFilename);
                 $album->setImage($newFilename);
@@ -157,9 +210,10 @@ class ProfileController extends AbstractController
         } else {
             $selectedImage = $request->request->get('image');
             if ($selectedImage) {
-                $song->setImage($selectedImage);
+                $album->setImage($selectedImage); // Correction ici
             }
         }
+        
         $this->entityManager->flush();
         return new JsonResponse(['success' => true]);
     }
@@ -172,14 +226,42 @@ class ProfileController extends AbstractController
         if (!$artist || $artist->getCreatedBy() !== $user) {
             return new JsonResponse(['error' => 'Artiste non trouvé ou accès non autorisé'], Response::HTTP_NOT_FOUND);
         }
+        
+        // Mise à jour des textes
         $name = $request->request->get('name');
         if ($name) {
             $artist->setName($name);
         }
+        $firstName = $request->request->get('first_name');
+        if ($firstName !== null) {
+            $artist->setFirstName($firstName);
+        }
+        $lastName = $request->request->get('last_name');
+        if ($lastName !== null) {
+            $artist->setLastName($lastName);
+        }
+        $birthDateStr = $request->request->get('birth_date');
+        if ($birthDateStr) {
+            try {
+                $artist->setBirthDate(new \DateTime($birthDateStr));
+            } catch (\Exception $e) {
+                return new JsonResponse(['error' => 'Format de date invalide'], Response::HTTP_BAD_REQUEST);
+            }
+        }
+        $style = $request->request->get('style');
+        if ($style !== null) {
+            $artist->setStyle($style);
+        }
+        $nationality = $request->request->get('nationality');
+        if ($nationality !== null) {
+            $artist->setNationality($nationality);
+        }
+        
+        // Gestion de l'image
         /** @var UploadedFile $file */
         $file = $request->files->get('image');
         if ($file instanceof UploadedFile) {
-            $newFilename = uniqid().'.'.$file->guessExtension();
+            $newFilename = uniqid() . '.' . $file->guessExtension();
             try {
                 $file->move($this->mediaDirectory, $newFilename);
                 $artist->setImage($newFilename);
@@ -189,10 +271,12 @@ class ProfileController extends AbstractController
         } else {
             $selectedImage = $request->request->get('image');
             if ($selectedImage) {
-                $song->setImage($selectedImage);
+                $artist->setImage($selectedImage); // Correction ici
             }
         }
+        
         $this->entityManager->flush();
         return new JsonResponse(['success' => true]);
     }
+
 }

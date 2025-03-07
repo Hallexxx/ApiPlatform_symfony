@@ -190,6 +190,83 @@
                 }
             }
 
+            .add-song-btn {
+                margin-top: 10px; /* petit écart sous le select artiste */
+                display: block;
+            }
+            .add-song-btn {
+                background-color: #28a745;
+                color: #fff;
+                border: none;
+                padding: 10px 20px;
+                font-size: 1rem;
+                border-radius: 5px;
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+            .add-song-btn:hover {
+                transform: scale(1.1);
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            }
+
+            .my-swal-popup {
+                display: flex !important;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .swal2-title{
+                margin-top: 1vh;
+            }
+
+            .swal2-html-container{
+                margin-top: 1vh;
+                display: flex !important;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .my-swal-popup input,
+            .my-swal-popup textarea,
+            .my-swal-popup button {
+                width: 100%;
+                max-width: 400px;
+                margin: 5px 0;
+            }
+            
+            .swal2-actions {
+                display: flex !important;
+                flex-direction: row;
+                justify-content: center;
+                gap: 10px;
+                margin-top: 15px;
+            }
+            
+            #file-name-display {
+                margin-top: 5px;
+                font-size: 0.9rem;
+                color: #fff;
+            }
+            
+            #choose-from-media {
+                background-color: #f0ad4e;
+                color: #fff;
+                border: none;
+                padding: 8px 12px;
+                border-radius: 4px;
+                cursor: pointer;
+                margin-top: 10px;
+                width: 100%;
+                max-width: 400px;
+            }
+            
+            .media-img.selected {
+                border: 3px solid #f0ad4e;
+                transform: scale(1.1);
+                transition: transform 0.3s, border 0.3s;
+            }
+
             footer {
                 background-color: #222;
                 color: #fff;
@@ -255,6 +332,11 @@
                     </div>
 
                     <div class="col-lg-6 d-flex flex-column justify-content-center info-container">
+                        {% if app.user and album.createdBy and album.createdBy.id == app.user.id %}
+                            <div id="editAlbumIcon" class="" style="cursor:pointer;">
+                                <i class="bi bi-pencil-square" style="font-size:2rem; color: yellow;"></i>
+                            </div>
+                        {% endif %}
                         <div class="song-controls">
                             <button id="infoButton" class="btn btn-primary">Info</button>
                             <button id="songsButton" class="btn btn-secondary">Songs</button>
@@ -289,6 +371,12 @@
                         </div>
                     </div>
                 </div>
+
+                {% if app.user and album.createdBy and album.createdBy.id == app.user.id %}
+                    <div class="text-center mt-4">
+                        <button id="deleteAlbumBtn" class="btn btn-danger">Supprimer l'album</button>
+                    </div>
+                {% endif %}
             </div>
         </section>
 
@@ -296,6 +384,9 @@
             &copy; 2024 Bibliothèque Musicale | Tous droits réservés.
         </footer>
         
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
         <script>
             const infoButton = document.getElementById('infoButton');
             const songsButton = document.getElementById('songsButton');
@@ -315,6 +406,165 @@
 
             infoButton.addEventListener('click', () => toggleContent(infoButton, infoContent));
             songsButton.addEventListener('click', () => toggleContent(songsButton, songsContent));
+
+
+            {% if app.user and album.createdBy and album.createdBy.id == app.user.id %}
+                const editAlbumIcon = document.getElementById('editAlbumIcon');
+                editAlbumIcon.addEventListener('click', () => {
+                    Swal.fire({
+                    title: 'Modifier l\'album',
+                    html: `
+                        <input type="text" id="edit-album-title" class="swal2-input" placeholder="Titre de l'album" value="{{ album.title }}" required>
+                        <input type="date" id="edit-album-date" class="swal2-input" value="{{ album.date|date('Y-m-d') }}" required>
+                        <select id="edit-album-artist" class="swal2-input" required>
+                        <option value="">Sélectionnez un artiste</option>
+                        {% for artist in artists %}
+                            <option value="{{ artist.id }}" {% if artist.id == album.artist.id %}selected{% endif %}>{{ artist.name }}</option>
+                        {% endfor %}
+                        </select>
+                        <input type="file" id="edit-album-image" class="swal2-input" accept="image/*" style="display:none;">
+                        <div id="edit-album-file-name">Aucun fichier choisi</div>
+                        <button type="button" id="choose-edit-album-image-from-media" class="btn btn-warning">Choisir image depuis la médiathèque</button>
+                        <button type="button" id="upload-edit-album-image-btn" class="btn btn-info">Téléverser depuis l'ordinateur</button>
+                        <div id="edit-album-media-library" style="display:none;"></div>
+                    `,
+                    width: '80%',
+                    focusConfirm: false,
+                    preConfirm: () => {
+                        const title = document.getElementById('edit-album-title').value.trim();
+                        const date = document.getElementById('edit-album-date').value;
+                        const artistId = document.getElementById('edit-album-artist').value;
+                        if (!title || !date || !artistId) {
+                        Swal.showValidationMessage("Tous les champs sont obligatoires");
+                        return false;
+                        }
+                        let formData = new FormData();
+                        formData.append('id', '{{ album.id }}');
+                        formData.append('title', title);
+                        formData.append('date', date);
+                        formData.append('artist', artistId);
+                        const fileInput = document.getElementById('edit-album-image');
+                        if (fileInput.files.length > 0) {
+                            formData.append('image', fileInput.files[0]);
+                        } else {
+                            // Vérification de l'image sélectionnée depuis la médiathèque
+                            const fileNameDisplay = document.getElementById('edit-album-file-name').textContent;
+                            if (fileNameDisplay && fileNameDisplay !== "Aucun fichier choisi") {
+                                formData.append('image', fileNameDisplay);
+                            }
+                        }
+                        return formData;
+                    }
+                    }).then(result => {
+                    if (result.isConfirmed) {
+                        const formData = result.value;
+                        fetch("{{ path('profile_update_album', { 'id': album.id }) }}", {
+                        method: 'POST',
+                        body: formData
+                        })
+                        .then(response => response.json())
+                        .then(json => {
+                        if (json.success) {
+                            Swal.fire('Album modifié', '', 'success').then(() => {
+                            location.reload();
+                            });
+                        } else {
+                            Swal.fire('Erreur', json.error || 'Une erreur est survenue', 'error');
+                        }
+                        })
+                        .catch(err => {
+                        Swal.fire('Erreur', 'Une erreur est survenue', 'error');
+                        });
+                    }
+                    });
+
+                    // Gestion de l'image dans l'édition
+                    document.getElementById('upload-edit-album-image-btn').addEventListener('click', () => {
+                    document.getElementById('edit-album-image').click();
+                    });
+                    document.getElementById('edit-album-image').addEventListener('change', () => {
+                    const fileNameDisplay = document.getElementById('edit-album-file-name');
+                    fileNameDisplay.textContent = document.getElementById('edit-album-image').files.length > 0 ? document.getElementById('edit-album-image').files[0].name : "Aucun fichier choisi";
+                    });
+                    // Exemple de chargement de médiathèque pour l'image en édition
+                    document.getElementById('choose-edit-album-image-from-media').addEventListener('click', () => {
+                    fetch('/media-list')
+                    .then(response => response.json())
+                    .then(images => {
+                        const container = document.getElementById('edit-album-media-library');
+                        let mediaHtml = '<div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">';
+                        images.forEach(img => {
+                        mediaHtml += `<img src="/media/${img}" alt="${img}" class="media-img" style="width: 100px; height: 100px; object-fit: cover; cursor: pointer;">`;
+                        });
+                        mediaHtml += '</div>';
+                        mediaHtml += `
+                        <div style="display: flex; justify-content: center; gap: 10px; margin-top: 10px;">
+                            <button type="button" id="edit-album-media-valider" class="btn btn-success" style="max-width: 150px;">Valider</button>
+                            <button type="button" id="edit-album-media-annuler" class="btn btn-secondary" style="max-width: 150px;">Annuler</button>
+                        </div>
+                        `;
+                        container.innerHTML = mediaHtml;
+                        container.style.display = 'block';
+                        let selectedUrl = null;
+                        container.querySelectorAll('.media-img').forEach(img => {
+                        img.addEventListener('click', function() {
+                            container.querySelectorAll('.media-img').forEach(i => i.classList.remove('selected'));
+                            this.classList.add('selected');
+                            selectedUrl = this.getAttribute('src').split('/media/')[1];
+                        });
+                        });
+                        document.getElementById('edit-album-media-valider').addEventListener('click', () => {
+                        container.style.display = 'none';
+                        const fileNameDisplay = document.getElementById('edit-album-file-name');
+                        if (selectedUrl) {
+                            fileNameDisplay.textContent = selectedUrl;
+                        }
+                        });
+                        document.getElementById('edit-album-media-annuler').addEventListener('click', () => {
+                        container.style.display = 'none';
+                        });
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        Swal.fire('Erreur', 'Impossible de charger la médiathèque', 'error');
+                    });
+                    });
+                });
+            {% endif %}
+
+                // Suppression de l'album
+                {% if app.user and album.createdBy and album.createdBy.id == app.user.id %}
+                const deleteAlbumBtn = document.getElementById('deleteAlbumBtn');
+                deleteAlbumBtn.addEventListener('click', () => {
+                    Swal.fire({
+                    title: 'Êtes-vous sûr de vouloir supprimer cet album ?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Oui, supprimer',
+                    cancelButtonText: 'Annuler'
+                    }).then(result => {
+                    if (result.isConfirmed) {
+                        fetch("{{ path('album_delete', { 'id': album.id }) }}", {
+                        method: 'POST'
+                        })
+                        .then(response => {
+                        if (response.ok) {
+                            Swal.fire('Album supprimé', '', 'success').then(() => {
+                            window.location.href = "{{ path('album_page') }}";
+                            });
+                        } else {
+                            response.text().then(text => {
+                            Swal.fire('Erreur', text || 'Une erreur est survenue', 'error');
+                            });
+                        }
+                        })
+                        .catch(err => {
+                        Swal.fire('Erreur', 'Une erreur est survenue', 'error');
+                        });
+                    }
+                    });
+                });
+            {% endif %}
         </script>
     </body>
 </html>

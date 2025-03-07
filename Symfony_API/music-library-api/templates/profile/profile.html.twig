@@ -433,8 +433,8 @@
                                 {% endif %}
                             {% endfor %}
 
-                            <div class="card" data-type="album" data-id="{{ album.id }}" data-index="{{ albumIndex }}" data-artistid="{{ album.artist.id }}"
-                                data-title="{{ album.title }}" data-image="{{ album.image }}">
+                            <div class="card"  data-type="album" data-id="{{ album.id }}" data-index="{{ albumIndex }}" data-artistid="{{ album.artist.id }}"
+                                data-title="{{ album.title }}" data-image="{{ album.image }}" data-date="{{ album.date|date('Y-m-d') }}">
                                 <div class="edit-icon" title="Modifier" data-type="album">
                                     <i class="bi bi-pencil-square"></i>
                                 </div>
@@ -453,8 +453,9 @@
                     <h3>Artistes</h3>
                     <div class="creations-cards">
                         {% for artist in artists %}
-                            <div class="card"  data-type="artist" -id="{{ artist.id }}" data-index="{{ artist.id }}" data-name="{{ artist.name }}"
-                                data-image="{{ artist.image }}">
+                            <div class="card"   data-type="artist" data-id="{{ artist.id }}" data-index="{{ artist.id }}" data-name="{{ artist.name }}" 
+                                data-first-name="{{ artist.firstName }}" data-birth-date="{{ artist.birthDate ? artist.birthDate|date('Y-m-d') : '' }}"
+                                data-last-name="{{ artist.lastName }}" data-style="{{ artist.style }}" data-nationality="{{ artist.nationality }}" data-image="{{ artist.image }}">
                                 <div class="edit-icon" title="Modifier" data-type="artist">
                                     <i class="bi bi-pencil-square"></i>
                                 </div>
@@ -477,7 +478,7 @@
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.10.4/gsap.min.js"></script>
         <script>
-            document.getElementById('edit-profile-btn').addEventListener('click', function() {
+              document.getElementById('edit-profile-btn').addEventListener('click', function() {
                 Swal.fire({
                     title: 'Modifier votre profil',
                     html: `
@@ -519,6 +520,7 @@
                     }
                 });
             });
+
             function loadMediaLibraryInPlace(callback) {
                 fetch('/media-list')
                 .then(response => {
@@ -576,31 +578,37 @@
 
                     if (type === 'song') {
                         htmlContent = `
-                        <input type="text" id="swal-title" class="swal2-input" placeholder="Titre" value="${card.getAttribute('data-title') || ''}">
-                        <input type="file" id="swal-image" class="swal2-input">
-                        <div id="file-name-display">Aucun fichier choisi</div>
-                        <button type="button" id="choose-from-media" class="btn btn-warning">Choisir depuis la médiathèque</button>
-                        <div id="media-library-container"></div>
-                        <textarea id="swal-lyrics" class="swal2-textarea" placeholder="Paroles">${card.getAttribute('data-lyrics') || ''}</textarea>
-                        <input type="date" id="swal-date" class="swal2-input" value="${card.getAttribute('data-date') || ''}">
+                            <input type="text" id="swal-title" class="swal2-input" placeholder="Titre" value="${card.getAttribute('data-title') || ''}">
+                            <input type="file" id="swal-image" class="swal2-input">
+                            <div id="file-name-display">Aucun fichier choisi</div>
+                            <button type="button" id="choose-from-media" class="btn btn-warning">Choisir depuis la médiathèque</button>
+                            <div id="media-library-container"></div>
+                            <textarea id="swal-lyrics" class="swal2-textarea" placeholder="Paroles">${card.getAttribute('data-lyrics') || ''}</textarea>
+                            <input type="date" id="swal-date" class="swal2-input" value="${card.getAttribute('data-date') || ''}">
                         `;
                         endpoint = "{{ path('profile_update_song', {'id': 'SOME_ID'}) }}".replace('SOME_ID', id);
                     } else if (type === 'album') {
                         htmlContent = `
-                        <input type="text" id="swal-title" class="swal2-input" placeholder="Titre" value="${card.getAttribute('data-title') || ''}">
-                        <input type="file" id="swal-image" class="swal2-input">
-                        <div id="file-name-display">Aucun fichier choisi</div>
-                        <button type="button" id="choose-from-media" class="btn btn-warning">Choisir depuis la médiathèque</button>
-                        <div id="media-library-container"></div>
+                            <input type="text" id="swal-title" class="swal2-input" placeholder="Titre" value="${card.getAttribute('data-title') || ''}">
+                            <input type="date" id="swal-date" class="swal2-input" placeholder="Date de sortie" value="${card.getAttribute('data-date') || ''}">
+                            <input type="file" id="swal-image" class="swal2-input">
+                            <div id="file-name-display">Aucun fichier choisi</div>
+                            <button type="button" id="choose-from-media" class="btn btn-warning">Choisir depuis la médiathèque</button>
+                            <div id="media-library-container"></div>
                         `;
                         endpoint = "{{ path('profile_update_album', {'id': 'SOME_ID'}) }}".replace('SOME_ID', id);
                     } else if (type === 'artist') {
                         htmlContent = `
-                        <input type="text" id="swal-name" class="swal2-input" placeholder="Nom" value="${card.getAttribute('data-name') || ''}">
-                        <input type="file" id="swal-image" class="swal2-input">
-                        <div id="file-name-display">Aucun fichier choisi</div>
-                        <button type="button" id="choose-from-media" class="btn btn-warning">Choisir depuis la médiathèque</button>
-                        <div id="media-library-container"></div>
+                            <input type="text" id="swal-name" class="swal2-input" placeholder="Nom" value="${card.getAttribute('data-name') || ''}">
+                            <input type="text" id="swal-first-name" class="swal2-input" placeholder="Prénom" value="${card.getAttribute('data-first-name') || ''}">
+                            <input type="text" id="swal-last-name" class="swal2-input" placeholder="Nom de famille" value="${card.getAttribute('data-last-name') || ''}">
+                            <input type="date" id="swal-birth-date" class="swal2-input" placeholder="Date de naissance" value="${card.getAttribute('data-birth-date') || ''}">
+                            <input type="text" id="swal-style" class="swal2-input" placeholder="Style" value="${card.getAttribute('data-style') || ''}">
+                            <input type="text" id="swal-nationality" class="swal2-input" placeholder="Nationalité" value="${card.getAttribute('data-nationality') || ''}">
+                            <input type="file" id="swal-image" class="swal2-input">
+                            <div id="file-name-display">Aucun fichier choisi</div>
+                            <button type="button" id="choose-from-media" class="btn btn-warning">Choisir depuis la médiathèque</button>
+                            <div id="media-library-container"></div>
                         `;
                         endpoint = "{{ path('profile_update_artist', {'id': 'SOME_ID'}) }}".replace('SOME_ID', id);
                     }
@@ -639,8 +647,14 @@
                                 formData.append('date', document.getElementById('swal-date').value);
                             } else if (type === 'album') {
                                 formData.append('title', document.getElementById('swal-title').value);
+                                formData.append('date', document.getElementById('swal-date').value);
                             } else if (type === 'artist') {
                                 formData.append('name', document.getElementById('swal-name').value);
+                                formData.append('first_name', document.getElementById('swal-first-name').value);
+                                formData.append('last_name', document.getElementById('swal-last-name').value);
+                                formData.append('birth_date', document.getElementById('swal-birth-date').value);
+                                formData.append('style', document.getElementById('swal-style').value);
+                                formData.append('nationality', document.getElementById('swal-nationality').value);
                             }
                             const fileInput = document.getElementById('swal-image');
                             if (fileInput.files.length > 0) {
@@ -680,23 +694,17 @@
 
             document.querySelectorAll('.card').forEach(card => {
                 card.addEventListener('click', function(e) {
-                    // Si le clic provient d'un élément (comme l'edit-icon) qui ne doit pas déclencher la redirection, on sort.
                     if (e.target.closest('.edit-icon')) return;
-
                     const type = this.dataset.type;
-                    const index = this.dataset.index; // Cet index correspondra à celui attendu dans l'URL
-
+                    const index = this.dataset.index;
                     if (type === 'album') {
-                        // Pour l'album, on doit aussi disposer de l'id de l'artiste associé (data-artistid)
                         const artistId = this.dataset.artistid;
                         window.location.href = `/artists/${artistId}/albums/${index}`;
                     } else if (type === 'song') {
-                        // Pour la chanson, on attend également les infos sur l'album et l'artiste.
                         const artistId = this.dataset.artistid;
                         const albumIndex = this.dataset.albumindex;
                         window.location.href = `/artists/${artistId}/albums/${albumIndex}/songs/${index}`;
                     } else if (type === 'artist') {
-                        // Pour l'artiste, on redirige vers la page de détails de l'artiste.
                         window.location.href = `/artists/${index}`;
                     }
                 });

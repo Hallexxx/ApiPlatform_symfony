@@ -92,6 +92,7 @@ class SongController extends AbstractController
         return $this->render('song/song_details.html.twig', [
             'song' => $song,
             'album' => $album,
+            'albums' => $albums,
             'artist' => $artist,
         ]);
     }
@@ -169,14 +170,18 @@ class SongController extends AbstractController
         return new JsonResponse(['success' => true]);
     }
     
-    public function deleteSong(int $id): Response
+    #[Route('/song/delete/{id}', name: 'song_delete', methods: ['POST'])]
+    public function deleteSong(int $id): JsonResponse
     {
-        try {
-            $this->songService->deleteSong($id);
-        } catch (\Exception $e) {
-            return $this->json(['error' => $e->getMessage()], Response::HTTP_NOT_FOUND);
+        $user = $this->getUser();
+        $song = $this->entityManager->getRepository(Song::class)->find($id);
+        if (!$song || $song->getCreatedBy() !== $user) {
+            return new JsonResponse(['error' => 'Song not found or unauthorized access'], Response::HTTP_NOT_FOUND);
         }
 
-        return $this->json(['message' => 'Song deleted successfully'], Response::HTTP_NO_CONTENT);
+        $this->entityManager->remove($song);
+        $this->entityManager->flush();
+
+        return new JsonResponse(['success' => true]);
     }
 }

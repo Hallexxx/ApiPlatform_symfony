@@ -113,6 +113,84 @@
             .favorited {
                 color: red !important;
             }
+
+            .add-song-btn {
+                margin-top: 10px; /* petit écart sous le select artiste */
+                display: block;
+            }
+            .add-song-btn {
+                background-color: #28a745;
+                color: #fff;
+                border: none;
+                padding: 10px 20px;
+                font-size: 1rem;
+                border-radius: 5px;
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+            .add-song-btn:hover {
+                transform: scale(1.1);
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            }
+
+            .my-swal-popup {
+                display: flex !important;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .swal2-title{
+                margin-top: 1vh;
+            }
+
+            .swal2-html-container{
+                margin-top: 1vh;
+                display: flex !important;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .my-swal-popup input,
+            .my-swal-popup textarea,
+            .my-swal-popup button {
+                width: 100%;
+                max-width: 400px;
+                margin: 5px 0;
+            }
+            
+            .swal2-actions {
+                display: flex !important;
+                flex-direction: row;
+                justify-content: center;
+                gap: 10px;
+                margin-top: 15px;
+            }
+            
+            #file-name-display {
+                margin-top: 5px;
+                font-size: 0.9rem;
+                color: #fff;
+            }
+            
+            #choose-from-media {
+                background-color: #f0ad4e;
+                color: #fff;
+                border: none;
+                padding: 8px 12px;
+                border-radius: 4px;
+                cursor: pointer;
+                margin-top: 10px;
+                width: 100%;
+                max-width: 400px;
+            }
+            
+            .media-img.selected {
+                border: 3px solid #f0ad4e;
+                transform: scale(1.1);
+                transition: transform 0.3s, border 0.3s;
+            }
+
             footer {
                 background-color: #222;
                 color: #fff;
@@ -187,6 +265,15 @@
                                 {% endfor %}
                             </select>
                         </div>
+                        {% if app.user %}
+                            <div class="row mt-3">
+                                <div class="col-12 text-center">
+                                <button id="add-artist-btn" class="btn btn-success">
+                                    <i class="bi bi-plus-circle"></i> Ajouter un artiste
+                                </button>
+                                </div>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
 
@@ -345,6 +432,159 @@
                         }
                     });
                 });
+            });
+
+            class ArtistAdder {
+                constructor() {
+                this.addArtistBtn = document.getElementById('add-artist-btn');
+                if (this.addArtistBtn) {
+                    this.addArtistBtn.addEventListener('click', this.openAddArtistModal.bind(this));
+                    gsap.fromTo(this.addArtistBtn, { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.5 });
+                }
+                }
+                openAddArtistModal() {
+                Swal.fire({
+                    title: 'Ajouter un artiste',
+                    html: this.getModalHtml(),
+                    width: '80%',
+                    customClass: { popup: 'swal2-popup my-swal-popup' },
+                    focusConfirm: false,
+                    showCancelButton: true,
+                    confirmButtonText: 'Ajouter',
+                    didOpen: () => {
+                    gsap.from("#swal-artist-name, #swal-first-name, #swal-last-name, #swal-birth-date, #swal-style, #swal-nationality", {
+                        duration: 0.5, y: -10, opacity: 0, stagger: 0.1
+                    });
+                    document.getElementById('upload-artist-image-btn').addEventListener('click', () => {
+                        document.getElementById('swal-artist-image').click();
+                    });
+                    const fileInput = document.getElementById('swal-artist-image');
+                    const fileNameDisplay = document.getElementById('artist-file-name-display');
+                    fileInput.addEventListener('change', () => {
+                        fileNameDisplay.textContent = fileInput.files.length > 0 ? fileInput.files[0].name : "Aucun fichier choisi";
+                    });
+                    document.getElementById('choose-artist-image-from-media').addEventListener('click', () => {
+                        this.loadArtistMediaLibrary();
+                    });
+                    },
+                    preConfirm: () => {
+                    const name = document.getElementById('swal-artist-name').value.trim();
+                    if (!name) {
+                        Swal.showValidationMessage("Veuillez renseigner le nom de l'artiste");
+                        return false;
+                    }
+                    const firstName = document.getElementById('swal-first-name').value.trim();
+                    const lastName = document.getElementById('swal-last-name').value.trim();
+                    const birthDate = document.getElementById('swal-birth-date').value;
+                    const style = document.getElementById('swal-style').value.trim();
+                    const nationality = document.getElementById('swal-nationality').value.trim();
+                    const fileInput = document.getElementById('swal-artist-image');
+                    let formData = new FormData();
+                    formData.append('name', name);
+                    formData.append('first_name', firstName);
+                    formData.append('last_name', lastName);
+                    formData.append('birth_date', birthDate);
+                    formData.append('style', style);
+                    formData.append('nationality', nationality);
+                    if (fileInput.files.length > 0) {
+                        formData.append('image', fileInput.files[0]);
+                    } else {
+                        const selectedImage = document.getElementById('artist-file-name-display').textContent;
+                        if (selectedImage && selectedImage !== "Aucun fichier choisi") {
+                        formData.append('image', selectedImage);
+                        }
+                    }
+                    return formData;
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                    const formData = result.value;
+                    fetch("{{ path('artist_add') }}", {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(json => {
+                        if (json.success) {
+                        Swal.fire('Artiste ajouté', '', 'success').then(() => {
+                            location.reload();
+                        });
+                        } else {
+                        Swal.fire('Erreur', json.error || 'Une erreur est survenue', 'error');
+                        }
+                    })
+                    .catch(err => {
+                        Swal.fire('Erreur', 'Une erreur est survenue', 'error');
+                    });
+                    }
+                });
+                }
+                getModalHtml() {
+                return `
+                    <input type="text" id="swal-artist-name" class="swal2-input" placeholder="Nom de l'artiste" required>
+                    <input type="text" id="swal-first-name" class="swal2-input" placeholder="Prénom">
+                    <input type="text" id="swal-last-name" class="swal2-input" placeholder="Nom de famille">
+                    <input type="date" id="swal-birth-date" class="swal2-input" placeholder="Date de naissance">
+                    <input type="text" id="swal-style" class="swal2-input" placeholder="Style">
+                    <input type="text" id="swal-nationality" class="swal2-input" placeholder="Nationalité">
+                    <!-- Section Image -->
+                    <input type="file" id="swal-artist-image" class="swal2-input" accept="image/*" style="display:none;">
+                    <div id="artist-file-name-display">Aucun fichier choisi</div>
+                    <button type="button" id="choose-artist-image-from-media" class="btn btn-warning">Choisir image depuis la médiathèque</button>
+                    <button type="button" id="upload-artist-image-btn" class="btn btn-info">Téléverser depuis l'ordinateur</button>
+                    <div id="artist-media-library-container" style="display:none;"></div>
+                `;
+                }
+                loadArtistMediaLibrary() {
+                fetch('/media-list')
+                    .then(response => {
+                    if (!response.ok) {
+                        throw new Error("HTTP error " + response.status);
+                    }
+                    return response.json();
+                    })
+                    .then(images => {
+                    const container = document.getElementById('artist-media-library-container');
+                    let mediaHtml = '<div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">';
+                    images.forEach(img => {
+                        mediaHtml += `<img src="/media/${img}" alt="${img}" class="media-img" style="width: 100px; height: 100px; object-fit: cover; cursor: pointer;">`;
+                    });
+                    mediaHtml += '</div>';
+                    mediaHtml += `
+                        <div style="display: flex; justify-content: center; gap: 10px; margin-top: 10px;">
+                        <button type="button" id="artist-media-valider" class="btn btn-success" style="max-width: 150px;">Valider</button>
+                        <button type="button" id="artist-media-annuler" class="btn btn-secondary" style="max-width: 150px;">Annuler</button>
+                        </div>
+                    `;
+                    container.innerHTML = mediaHtml;
+                    container.style.display = 'block';
+                    let selectedUrl = null;
+                    container.querySelectorAll('.media-img').forEach(img => {
+                        img.addEventListener('click', function() {
+                        container.querySelectorAll('.media-img').forEach(i => i.classList.remove('selected'));
+                        this.classList.add('selected');
+                        selectedUrl = this.getAttribute('src').split('/media/')[1];
+                        });
+                    });
+                    document.getElementById('artist-media-valider').addEventListener('click', () => {
+                        container.style.display = 'none';
+                        const fileNameDisplay = document.getElementById('artist-file-name-display');
+                        if (selectedUrl) {
+                        fileNameDisplay.textContent = selectedUrl;
+                        }
+                    });
+                    document.getElementById('artist-media-annuler').addEventListener('click', () => {
+                        container.style.display = 'none';
+                    });
+                    })
+                    .catch(err => {
+                    console.error(err);
+                    Swal.fire('Erreur', 'Impossible de charger la médiathèque', 'error');
+                    });
+                }
+            }
+            document.addEventListener('DOMContentLoaded', () => {
+                new ArtistAdder();
             });
         </script>
     </body>

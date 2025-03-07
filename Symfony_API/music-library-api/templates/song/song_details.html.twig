@@ -228,6 +228,65 @@
                 }
             }
 
+            .my-swal-popup {
+                display: flex !important;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .swal2-title{
+                margin-top: 1vh;
+            }
+
+            .swal2-html-container{
+                margin-top: 1vh;
+                display: flex !important;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .my-swal-popup input,
+            .my-swal-popup textarea,
+            .my-swal-popup button {
+                width: 100%;
+                max-width: 400px;
+                margin: 5px 0;
+            }
+            
+            .swal2-actions {
+                display: flex !important;
+                flex-direction: row;
+                justify-content: center;
+                gap: 10px;
+                margin-top: 15px;
+            }
+            
+            #file-name-display {
+                margin-top: 5px;
+                font-size: 0.9rem;
+                color: #fff;
+            }
+            
+            #choose-from-media {
+                background-color: #f0ad4e;
+                color: #fff;
+                border: none;
+                padding: 8px 12px;
+                border-radius: 4px;
+                cursor: pointer;
+                margin-top: 10px;
+                width: 100%;
+                max-width: 400px;
+            }
+            
+            .media-img.selected {
+                border: 3px solid #f0ad4e;
+                transform: scale(1.1);
+                transition: transform 0.3s, border 0.3s;
+            }
+
             footer {
                 background-color: #222;
                 color: #fff;
@@ -298,6 +357,11 @@
                     </div>
 
                     <div class="col-lg-6 d-flex flex-column justify-content-center info-lyrics-container">
+                        {% if app.user and song.createdBy and song.createdBy.id == app.user.id %}
+                            <div id="editSongIcon" class="" style="cursor:pointer;">
+                                <i class="bi bi-pencil-square" style="font-size:2rem; color: yellow;"></i>
+                            </div>
+                        {% endif %}
                         <div class="song-controls">
                             <button id="infoButton" class="btn btn-primary">Info</button>
                             <button id="lyricsButton" class="btn btn-secondary">Paroles</button>
@@ -320,6 +384,12 @@
                         </div>
                     </div>
                 </div>
+
+                {% if app.user and song.createdBy and song.createdBy.id == app.user.id %}
+                    <div class="text-center mt-4">
+                        <button id="deleteSongBtn" class="btn btn-danger">Supprimer la musique</button>
+                    </div>
+                {% endif %}
             </div>
         </section>
 
@@ -327,6 +397,7 @@
             &copy; 2024 Bibliothèque Musicale | Tous droits réservés.
         </footer>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
             const infoButton = document.getElementById('infoButton');
             const lyricsButton = document.getElementById('lyricsButton');
@@ -350,6 +421,253 @@
                 infoButton.classList.add('btn-secondary');
                 infoButton.classList.remove('btn-primary');
             });
+
+            {% if app.user and song.createdBy and song.createdBy.id == app.user.id %}
+                // Modification de la musique
+                document.getElementById('editSongIcon').addEventListener('click', () => {
+                    Swal.fire({
+                        title: 'Modifier la musique',
+                        html: `
+                            <label>Titre</label>
+                            <input type="text" id="edit-song-title" class="swal2-input" placeholder="Titre" value="{{ song.title }}">
+
+                            <label>Album</label>
+                            <select id="edit-song-album" class="swal2-input">
+                                {% for al in albums %}
+                                    <option value="{{ al.id }}" {% if al.id == album.id %} selected {% endif %}>
+                                        {{ al.title }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+
+                            <label>Durée (secondes)</label>
+                            <input type="number" id="edit-song-duration" class="swal2-input" placeholder="Durée (secondes)" value="{{ song.lengthInMinutes }}">
+
+                            <label>Date de sortie</label>
+                            <input type="date" id="edit-song-date" class="swal2-input" value="{{ song.date|date('Y-m-d') }}">
+
+                            <label>Son image</label>
+                            <input type="file" id="edit-song-image" class="swal2-input" accept="image/*" style="display:none;">
+                            <div id="edit-song-file-name">Aucun fichier choisi</div>
+                            <button type="button" id="choose-edit-song-image-from-media" class="btn btn-warning">Choisir image depuis la médiathèque</button>
+                            <button type="button" id="upload-edit-song-image-btn" class="btn btn-info">Téléverser depuis l'ordinateur</button>
+
+                            <label>Fichier MP3</label>
+                            <input type="file" id="edit-song-file" class="swal2-input" accept="audio/mpeg" style="display:none;">
+                            <div id="edit-song-file-name-mp3">Aucun fichier choisi</div>
+                            <button type="button" id="choose-edit-song-file-from-media" class="btn btn-warning">Choisir mp3 depuis la médiathèque</button>
+                            <button type="button" id="upload-edit-song-file-btn" class="btn btn-info">Téléverser depuis l'ordinateur</button>
+
+                            <label>Paroles</label>
+                            <textarea id="edit-song-lyrics" class="swal2-textarea" placeholder="Paroles">{{ song.lyrics }}</textarea>
+
+                            <!-- Ajoutez ce conteneur pour la médiathèque -->
+                            <div id="edit-song-media-library" style="display:none;"></div>
+                        `,
+                        width: '80%',
+                        focusConfirm: false,
+                        preConfirm: () => {
+                            const title = document.getElementById('edit-song-title').value.trim();
+                            const album = document.getElementById('edit-song-album').value;
+                            const duration = document.getElementById('edit-song-duration').value;
+                            const date = document.getElementById('edit-song-date').value;
+                            const lyrics = document.getElementById('edit-song-lyrics').value;
+                            if (!title) {
+                                Swal.showValidationMessage("Le titre est obligatoire");
+                                return false;
+                            }
+                            let formData = new FormData();
+                            formData.append('title', title);
+                            formData.append('album', album);
+                            formData.append('duration', duration);
+                            formData.append('date', date);
+                            formData.append('lyrics', lyrics);
+
+                            // Gestion de l'image
+                            const fileInputImg = document.getElementById('edit-song-image');
+                            if (fileInputImg.files.length > 0) {
+                                formData.append('image', fileInputImg.files[0]);
+                            } else {
+                                const fileNameDisplayImg = document.getElementById('edit-song-file-name').textContent;
+                                if (fileNameDisplayImg && fileNameDisplayImg !== "Aucun fichier choisi") {
+                                    formData.append('image', fileNameDisplayImg);
+                                }
+                            }
+
+                            // Gestion du fichier mp3
+                            const fileInputMp3 = document.getElementById('edit-song-file');
+                            if (fileInputMp3.files.length > 0) {
+                                formData.append('file', fileInputMp3.files[0]);
+                            } else {
+                                const fileNameDisplayMp3 = document.getElementById('edit-song-file-name-mp3').textContent;
+                                if (fileNameDisplayMp3 && fileNameDisplayMp3 !== "Aucun fichier choisi") {
+                                    formData.append('file', fileNameDisplayMp3);
+                                }
+                            }
+                            return formData;
+                        }
+                    }).then(result => {
+                        if (result.isConfirmed) {
+                            const formData = result.value;
+                            fetch("{{ path('profile_update_song', { 'id': song.id }) }}", {
+                                method: 'POST',
+                                body: formData
+                            })
+                            .then(response => response.json())
+                            .then(json => {
+                                if (json.success) {
+                                    Swal.fire('Musique modifiée', '', 'success').then(() => {
+                                        location.reload();
+                                    });
+                                } else {
+                                    Swal.fire('Erreur', json.error || 'Une erreur est survenue', 'error');
+                                }
+                            })
+                            .catch(err => {
+                                Swal.fire('Erreur', 'Une erreur est survenue', 'error');
+                            });
+                        }
+                    });
+
+                    // Gestion du téléversement de l'image depuis l'ordinateur
+                    document.getElementById('upload-edit-song-image-btn').addEventListener('click', () => {
+                        document.getElementById('edit-song-image').click();
+                    });
+                    document.getElementById('edit-song-image').addEventListener('change', () => {
+                        const fileNameDisplay = document.getElementById('edit-song-file-name');
+                        fileNameDisplay.textContent = document.getElementById('edit-song-image').files.length > 0
+                            ? document.getElementById('edit-song-image').files[0].name
+                            : "Aucun fichier choisi";
+                    });
+                    // Sélection d'image depuis la médiathèque
+                    document.getElementById('choose-edit-song-image-from-media').addEventListener('click', () => {
+                        fetch('/media-list')
+                        .then(response => response.json())
+                        .then(images => {
+                            const container = document.getElementById('edit-song-media-library');
+                            let mediaHtml = '<div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">';
+                            images.forEach(img => {
+                                mediaHtml += `<img src="/media/${img}" alt="${img}" class="media-img" style="width: 100px; height: 100px; object-fit: cover; cursor: pointer;">`;
+                            });
+                            mediaHtml += '</div>';
+                            mediaHtml += `
+                                <div style="display: flex; justify-content: center; gap: 10px; margin-top: 10px;">
+                                    <button type="button" id="edit-song-media-valider" class="btn btn-success" style="max-width: 150px;">Valider</button>
+                                    <button type="button" id="edit-song-media-annuler" class="btn btn-secondary" style="max-width: 150px;">Annuler</button>
+                                </div>
+                            `;
+                            container.innerHTML = mediaHtml;
+                            container.style.display = 'block';
+                            let selectedUrl = null;
+                            container.querySelectorAll('.media-img').forEach(img => {
+                                img.addEventListener('click', function() {
+                                    container.querySelectorAll('.media-img').forEach(i => i.classList.remove('selected'));
+                                    this.classList.add('selected');
+                                    selectedUrl = this.getAttribute('src').split('/media/')[1];
+                                });
+                            });
+                            document.getElementById('edit-song-media-valider').addEventListener('click', () => {
+                                container.style.display = 'none';
+                                const fileNameDisplay = document.getElementById('edit-song-file-name');
+                                if (selectedUrl) {
+                                    fileNameDisplay.textContent = selectedUrl;
+                                }
+                            });
+                            document.getElementById('edit-song-media-annuler').addEventListener('click', () => {
+                                container.style.display = 'none';
+                            });
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            Swal.fire('Erreur', 'Impossible de charger la médiathèque', 'error');
+                        });
+                    });
+
+                    // Gestion du téléversement du fichier mp3 depuis l'ordinateur
+                    document.getElementById('upload-edit-song-file-btn').addEventListener('click', () => {
+                        document.getElementById('edit-song-file').click();
+                    });
+                    document.getElementById('edit-song-file').addEventListener('change', () => {
+                        const fileNameDisplay = document.getElementById('edit-song-file-name-mp3');
+                        fileNameDisplay.textContent = document.getElementById('edit-song-file').files.length > 0
+                            ? document.getElementById('edit-song-file').files[0].name
+                            : "Aucun fichier choisi";
+                    });
+                    document.getElementById('choose-edit-song-file-from-media').addEventListener('click', () => {
+                        fetch('/media-list')
+                        .then(response => response.json())
+                        .then(files => {
+                            const container = document.getElementById('edit-song-media-library');
+                            let mediaHtml = '<div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">';
+                            files.forEach(file => {
+                                // Utilisation de toLowerCase() pour être insensible à la casse
+                                if(file.toLowerCase().endsWith('.mp3')) {
+                                    mediaHtml += `<img src="/media/${file}" alt="${file}" class="media-img" style="width: 100px; height: 100px; object-fit: cover; cursor: pointer;">`;
+                                }
+                            });
+                            mediaHtml += '</div>';
+                            mediaHtml += `
+                                <div style="display: flex; justify-content: center; gap: 10px; margin-top: 10px;">
+                                    <button type="button" id="edit-song-media-file-valider" class="btn btn-success" style="max-width: 150px;">Valider</button>
+                                    <button type="button" id="edit-song-media-file-annuler" class="btn btn-secondary" style="max-width: 150px;">Annuler</button>
+                                </div>
+                            `;
+                            container.innerHTML = mediaHtml;
+                            container.style.display = 'block';
+                            let selectedMp3 = null;
+                            container.querySelectorAll('.media-img').forEach(img => {
+                                img.addEventListener('click', function() {
+                                    container.querySelectorAll('.media-img').forEach(i => i.classList.remove('selected'));
+                                    this.classList.add('selected');
+                                    selectedMp3 = this.getAttribute('src').split('/media/')[1];
+                                });
+                            });
+                            document.getElementById('edit-song-media-file-valider').addEventListener('click', () => {
+                                container.style.display = 'none';
+                                const fileNameDisplay = document.getElementById('edit-song-file-name-mp3');
+                                if (selectedMp3) {
+                                    fileNameDisplay.textContent = selectedMp3;
+                                }
+                            });
+                            document.getElementById('edit-song-media-file-annuler').addEventListener('click', () => {
+                                container.style.display = 'none';
+                            });
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            Swal.fire('Erreur', 'Impossible de charger la médiathèque mp3/mp4', 'error');
+                        });
+                    });
+                });
+
+                document.getElementById('deleteSongBtn').addEventListener('click', () => {
+                    Swal.fire({
+                        title: 'Êtes-vous sûr de vouloir supprimer cette musique ?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Oui, supprimer',
+                        cancelButtonText: 'Annuler'
+                    }).then(result => {
+                        if (result.isConfirmed) {
+                            fetch("{{ path('song_delete', { 'id': song.id }) }}", { method: 'POST' })
+                            .then(response => {
+                                if (response.ok) {
+                                    Swal.fire('Musique supprimée', '', 'success').then(() => {
+                                        window.location.href = "{{ path('song_page') }}";
+                                    });
+                                } else {
+                                    response.text().then(text => {
+                                        Swal.fire('Erreur', text || 'Une erreur est survenue', 'error');
+                                    });
+                                }
+                            })
+                            .catch(err => {
+                                Swal.fire('Erreur', 'Une erreur est survenue', 'error');
+                            });
+                        }
+                    });
+                });
+            {% endif %}
         </script>
     </body>
 </html>
