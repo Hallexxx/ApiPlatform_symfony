@@ -13,10 +13,12 @@
                 font-family: 'Poppins', sans-serif;
                 background-color: #111;
             }
+            
             .navbar.scrolled {
                 background-color: #333;
                 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             }
+            
             .navbar {
                 padding: 1rem 0;
                 position: fixed;
@@ -26,19 +28,25 @@
                 background: transparent;
                 transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
             }
+
             .navbar-nav {
-                margin: 0 auto;
+                display: flex;
+                gap: 1rem;  
+                align-items: center;
             }
+
             .navbar-nav .nav-link {
                 color: #fff;
                 margin-right: 15px;
                 position: relative;
                 padding-bottom: 5px;
             }
-            .navbar-nav .nav-link.active,
+
+            .navbar-nav .nav-link.active, 
             .navbar-nav .nav-link:hover {
                 color: #f0ad4e;
             }
+
             .navbar-nav .nav-link::after {
                 content: '';
                 position: absolute;
@@ -49,16 +57,38 @@
                 left: 50%;
                 transition: all 0.3s ease;
             }
-            .navbar-nav .nav-link.active::after,
+
+            .navbar-nav .nav-link.active::after, 
             .navbar-nav .nav-link:hover::after {
                 width: 100%;
                 left: 0;
             }
-            .home-section {
-                margin-top: 15vh;
+
+            .navbar-collapse {
+                display: flex;
+                justify-content: flex-end;
+                align-items: center;
+            }
+
+            .navbar-nav.main-menu,
+            .navbar-nav.auth-menu {
                 display: flex;
                 align-items: center;
-                justify-content: center;
+                gap: 1rem;
+                margin: 0;
+            }
+
+            .navbar-nav.main-menu {
+                margin-right: 2rem;
+            }
+
+            .navbar-nav .nav-link.active {
+                color: #f0ad4e;
+            }
+
+            .home-section {
+                margin-top: 15vh;
+                min-height: 75vh;
             }
             .search-bar {
                 margin-bottom: 30px;
@@ -80,6 +110,7 @@
                 width: 250px;
                 border-radius: 15px;
                 overflow: hidden;
+                background-color: #141414;
                 border: none;
                 box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
                 transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -94,7 +125,7 @@
                 object-fit: cover;
             }
             .card-body {
-                background-color: rgb(0 0 0 / 86%);
+                background-color: rgb(251 248 248 / 5%) !important;
                 color: #fff;
                 padding: 15px;
                 text-align: center;

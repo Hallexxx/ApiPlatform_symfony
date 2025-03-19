@@ -89,6 +89,7 @@
 
             #favorites-container {
                 margin-top: 100px;
+                min-height: 80vh;
             }
             .search-favorites {
                 text-align: center;
@@ -170,6 +171,17 @@
                 }
             }
 
+            .no-favorites {
+                text-align: center;
+                margin-top: 1vh;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                animation: fadeInDown 1s ease;
+            }
+
+
             .favorite-icon {
                 position: absolute;
                 top: 10px;
@@ -246,11 +258,10 @@
             </div>
 
             <div class="favorites-section" id="favorites-songs-section">
-                <h2>Vos Musiques Favorites</h2>
+                <h2>Vos Musiques Favoris</h2>
                 <div class="favorites-cards">
                     {% for fav in favoris %}
                         {% if fav.song %}
-                            {# Calcul de l'index de l'album dans la collection de l'artiste #}
                             {% set albumIndex = 1 %}
                             {% for album in fav.song.album.artist.albums %}
                                 {% if album.id == fav.song.album.id %}
@@ -258,7 +269,6 @@
                                 {% endif %}
                             {% endfor %}
 
-                            {# Calcul de l'index de la chanson dans la collection de l'album #}
                             {% set songIndex = 1 %}
                             {% for s in fav.song.album.songs %}
                                 {% if s.id == fav.song.id %}
@@ -283,12 +293,17 @@
                                 </div>
                             </div>
                         {% endif %}
+                        {% else %}
+                            <div class="no-favorites">
+                                <p>Vous n'avez pas encore de musiques dans vos favoris. N'hésitez plus et ajoutez-en dès maintenant !</p>
+                                <button type="button" class="btn btn-primary" onclick="window.location.href='{{ path('song_page') }}'">Voir toutes les musiques</button>
+                            </div>
                     {% endfor %}
                 </div>
             </div>
             
             <div class="favorites-section" id="favorites-albums-section">
-                <h2>Vos Albums Favorites</h2>
+                <h2>Vos Albums Favoris</h2>
                 <div class="favorites-cards">
                     {% for fav in favoris %}
                         {% if fav.album %}
@@ -315,12 +330,17 @@
                                 </div>
                             </div>
                         {% endif %}
+                        {% else %}
+                            <div class="no-favorites">
+                                <p>Vous n'avez pas encore d'albums dans vos favoris nhesitez plus et ajoutes en des maintenant</p>
+                                <button type="button" class="btn btn-primary" onclick="window.location.href='{{ path('album_page') }}'">Voir tous les albums </button>
+                            </div>
                     {% endfor %}
                 </div>
             </div>
 
             <div class="favorites-section" id="favorites-artists-section">
-                <h2>Vos Artistes Favorites</h2>
+                <h2>Vos Artistes Favoris</h2>
                 <div class="favorites-cards">
                     {% for fav in favoris %}
                         {% if fav.artist %}
@@ -339,6 +359,11 @@
                                 </div>
                             </div>
                         {% endif %}
+                        {% else %}
+                            <div class="no-favorites">
+                                <p>Vous n'avez pas encore d'artistes dans vos favoris nhesitez plus et ajoutes en des maintenant</p>
+                                <button type="button" class="btn btn-primary" onclick="window.location.href='{{ path('artist_page') }}'">Voir tous les artistes </button>
+                            </div>
                     {% endfor %}
                 </div>
             </div>
@@ -352,7 +377,6 @@
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.10.4/gsap.min.js"></script>
         <script>
-            // Recherche dans les favoris avec gestion de l'affichage des sections
             class FavoritesSearch {
                 constructor() {
                     this.searchInput = document.getElementById('favorites-search');

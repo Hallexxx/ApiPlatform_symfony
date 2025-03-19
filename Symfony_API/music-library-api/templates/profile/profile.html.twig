@@ -89,6 +89,7 @@
             
             #profile-container {
                 margin-top: 120px;
+                min-height: 80vh;
             }
 
             .pro{
@@ -301,6 +302,26 @@
                 transform: scale(1.1);
                 transition: transform 0.3s, border 0.3s;
             }
+
+            .no-creations {
+                padding: 50px;
+                margin: 50px auto;
+                background: #222;
+                border-radius: 10px;
+                animation: fadeInDown 1s ease;
+                max-width: 600px;
+            }
+
+            @keyframes fadeInDown {
+                from {
+                    opacity: 0;
+                    transform: translateY(-20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
         </style>
     </head>
     <body>
@@ -468,6 +489,19 @@
                     </div>
                 </div>
             {% endif %}
+
+            {% if songs|length == 0 and albums|length == 0 and artists|length == 0 %}
+                <div class="no-creations text-center">
+                    <h4>Vous n'avez pas encore créé d'artistes, de musiques ou d'albums.</h4>
+                    <p>Vous pouvez en créer dès maintenant depuis l'une de ces pages :</p>
+                    <div class="btn-group mt-3">
+                        <a href="{{ path('artist_page') }}" class="btn btn-primary mx-2">Créer un artiste</a>
+                        <a href="{{ path('song_page') }}" class="btn btn-success mx-2">Créer une musique</a>
+                        <a href="{{ path('album_page') }}" class="btn btn-warning mx-2">Créer un album</a>
+                    </div>
+                </div>
+            {% endif %}
+
         </div>
 
         <footer>

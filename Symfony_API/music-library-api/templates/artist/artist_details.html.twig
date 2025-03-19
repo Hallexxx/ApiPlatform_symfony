@@ -17,8 +17,9 @@
 
             .navbar.scrolled {
                 background-color: #333;
-                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             }
+            
             .navbar {
                 padding: 1rem 0;
                 position: fixed;
@@ -28,19 +29,25 @@
                 background: transparent;
                 transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
             }
+
             .navbar-nav {
-                margin: 0 auto;
+                display: flex;
+                gap: 1rem;  
+                align-items: center;
             }
+
             .navbar-nav .nav-link {
                 color: #fff;
                 margin-right: 15px;
                 position: relative;
                 padding-bottom: 5px;
             }
-            .navbar-nav .nav-link.active,
+
+            .navbar-nav .nav-link.active, 
             .navbar-nav .nav-link:hover {
                 color: #f0ad4e;
             }
+
             .navbar-nav .nav-link::after {
                 content: '';
                 position: absolute;
@@ -51,10 +58,33 @@
                 left: 50%;
                 transition: all 0.3s ease;
             }
-            .navbar-nav .nav-link.active::after,
+
+            .navbar-nav .nav-link.active::after, 
             .navbar-nav .nav-link:hover::after {
                 width: 100%;
                 left: 0;
+            }
+
+            .navbar-collapse {
+                display: flex;
+                justify-content: flex-end;
+                align-items: center;
+            }
+
+            .navbar-nav.main-menu,
+            .navbar-nav.auth-menu {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                margin: 0;
+            }
+
+            .navbar-nav.main-menu {
+                margin-right: 2rem;
+            }
+
+            .navbar-nav .nav-link.active {
+                color: #f0ad4e;
             }
 
 
@@ -325,7 +355,7 @@
                     <div class="col-lg-6 d-flex flex-column justify-content-center info-container">
 
                         {% if app.user and artist.createdBy and artist.createdBy.id == app.user.id %}
-                            <div id="editArtistIcon">
+                            <div id="editArtistIcon" style="cursor:pointer; display: flex; align-items: end; justify-content: end;">
                                 <i class="bi bi-pencil-square" style="font-size:2rem; color: yellow;"></i>
                             </div>
                         {% endif %}
