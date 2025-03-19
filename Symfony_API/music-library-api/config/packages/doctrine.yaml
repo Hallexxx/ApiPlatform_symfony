@@ -27,7 +27,7 @@ doctrine:
         # soit la supprimer si elle n'est pas utilisée.
         dql:
             numeric_functions:
-                RAND: DoctrineExtensions\Query\Mysql\Rand
+                RAND: DoctrineExtensions\Query\Sqlite\Random
 
 
 when@test:
