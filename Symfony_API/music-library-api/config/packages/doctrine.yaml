@@ -1,11 +1,10 @@
 doctrine:
     dbal:
+        # La chaîne de connexion est définie dans votre variable d'environnement DATABASE_URL.
+        # Par exemple, dans votre .env.local :
+        # DATABASE_URL="postgresql://postgres.emxaygoqkbhmcxsqmsxj:[YOUR-PASSWORD]@aws-0-eu-central-1.pooler.supabase.com:6543/postgres?server_version=16&charset=utf8"
         url: '%env(resolve:DATABASE_URL)%'
-
-        # IMPORTANT: You MUST configure your server version,
-        # either here or in the DATABASE_URL env var (see .env file)
-        #server_version: '16'
-
+        server_version: '16'
         profiling_collect_backtrace: '%kernel.debug%'
         use_savepoints: true
     orm:
@@ -24,16 +23,17 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Entity'
                 prefix: 'App\Entity'
                 alias: App
-        controller_resolver:
-            auto_mapping: false
+        # Si vous utilisiez une fonction RAND pour MySQL, vous pouvez soit la remplacer par une fonction PostgreSQL, 
+        # soit la supprimer si elle n'est pas utilisée.
         dql:
             numeric_functions:
                 RAND: DoctrineExtensions\Query\Mysql\Rand
 
+
 when@test:
     doctrine:
         dbal:
-            # "TEST_TOKEN" is typically set by ParaTest
+            # "TEST_TOKEN" est généralement défini par ParaTest
             dbname_suffix: '_test%env(default::TEST_TOKEN)%'
 
 when@prod:
