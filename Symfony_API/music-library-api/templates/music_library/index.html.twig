@@ -531,14 +531,29 @@
                 async onSearch(query) {
                     this.showSuggestions();
                     try {
-                    const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
-                    const suggestions = await response.json();
-                    this.renderSuggestions(suggestions);
+                        const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+                        const suggestions = await response.json();
+
+                        // Vérifier si la réponse contient une erreur ou n'est pas un tableau
+                        if (suggestions.error) {
+                            console.error('Erreur côté serveur :', suggestions.error);
+                            this.hideSuggestions();
+                            return;
+                        }
+                        if (!Array.isArray(suggestions)) {
+                            console.error('Format inattendu pour les suggestions:', suggestions);
+                            this.hideSuggestions();
+                            return;
+                        }
+                        
+                        // On ne garde que les 5 premiers éléments
+                        this.renderSuggestions(suggestions.slice(0, 5));
                     } catch (error) {
-                    console.error('Erreur lors de la recherche live:', error);
-                    this.hideSuggestions();
+                        console.error('Erreur lors de la recherche live:', error);
+                        this.hideSuggestions();
                     }
                 }
+
 
                 renderSuggestions(suggestions) {
                     suggestions = suggestions.slice(0, 5);
