@@ -26,6 +26,7 @@ WORKDIR /var/www
 # Copier les fichiers de dépendances et le fichier .env ainsi que le dossier bin (pour disposer de bin/console)
 COPY composer.json composer.lock .env ./
 COPY bin/ bin/
+COPY src/ src/
 
 # Installer les dépendances sans les packages de développement
 RUN composer install --no-dev --optimize-autoloader --no-interaction
