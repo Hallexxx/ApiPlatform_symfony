@@ -2,10 +2,18 @@
 FROM php:8.1-fpm-alpine
 
 # Installer les dépendances système et les outils nécessaires
-RUN apk add --no-cache icu-dev libxml2-dev oniguruma-dev zip unzip git
+# (notamment postgresql-dev pour pdo_pgsql)
+RUN apk add --no-cache \
+    icu-dev \
+    libxml2-dev \
+    oniguruma-dev \
+    zip \
+    unzip \
+    git \
+    postgresql-dev
 
 # Installer les extensions PHP nécessaires
-# Si vous utilisez MySQL, utilisez pdo_mysql, pour PostgreSQL remplacez par pdo_pgsql
+# pdo_pgsql requiert postgresql-dev pour libpq-fe.h
 RUN docker-php-ext-install intl pdo pdo_pgsql opcache
 
 # Installer Composer en copiant l'exécutable depuis l'image officielle de Composer
@@ -27,7 +35,7 @@ COPY . .
 RUN php bin/console cache:clear --env=prod
 RUN php bin/console cache:warmup --env=prod
 
-# Exposer le port 8000 (Render passe le port via la variable d'environnement $PORT)
+# Exposer le port 8000 (Render ou autre plateforme passera la variable d'environnement $PORT)
 EXPOSE 8000
 
 # Commande de démarrage : on utilise le serveur PHP intégré
