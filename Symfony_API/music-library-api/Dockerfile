@@ -1,7 +1,7 @@
 # Utilise une image PHP 8.2 avec FPM basée sur Alpine Linux
 FROM php:8.2-fpm-alpine
 
-# Autoriser Composer à s'exécuter en tant que superuser et à activer ses plugins
+# Autoriser Composer à s'exécuter en tant que superuser et activer ses plugins
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
 # Installer les dépendances système et les outils nécessaires
@@ -23,8 +23,9 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Définir le répertoire de travail de l'application
 WORKDIR /var/www
 
-# Copier les fichiers de dépendances pour installer les packages
+# Copier les fichiers de dépendances et le dossier bin (pour avoir bin/console)
 COPY composer.json composer.lock ./
+COPY bin/ bin/
 
 # Installer les dépendances sans les packages de développement
 RUN composer install --no-dev --optimize-autoloader --no-interaction
