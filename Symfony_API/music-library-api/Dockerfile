@@ -1,6 +1,9 @@
 # Utilise une image PHP 8.2 avec FPM basée sur Alpine Linux
 FROM php:8.2-fpm-alpine
 
+# Autoriser Composer à s'exécuter en tant que superuser et à activer ses plugins
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
 # Installer les dépendances système et les outils nécessaires
 RUN apk add --no-cache \
     icu-dev \
@@ -33,8 +36,8 @@ COPY . .
 RUN php bin/console cache:clear --env=prod
 RUN php bin/console cache:warmup --env=prod
 
-# Exposer le port 8000 (Render ou autre plateforme passera la variable d'environnement $PORT)
+# Exposer le port 8000 (Render ou autre plateforme passe la variable d'environnement $PORT)
 EXPOSE 8000
 
-# Commande de démarrage : on utilise le serveur PHP intégré
+# Commande de démarrage : utilisation du serveur PHP intégré
 CMD ["php", "-S", "0.0.0.0:8000", "-t", "public"]
