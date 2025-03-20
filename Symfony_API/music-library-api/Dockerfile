@@ -23,8 +23,8 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Définir le répertoire de travail de l'application
 WORKDIR /var/www
 
-# Copier les fichiers de dépendances et le dossier bin (pour avoir bin/console)
-COPY composer.json composer.lock ./
+# Copier les fichiers de dépendances et le fichier .env ainsi que le dossier bin (pour disposer de bin/console)
+COPY composer.json composer.lock .env ./
 COPY bin/ bin/
 
 # Installer les dépendances sans les packages de développement
