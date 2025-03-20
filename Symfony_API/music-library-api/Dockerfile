@@ -1,8 +1,7 @@
-# Utilise une image PHP 8.1 avec FPM basée sur Alpine Linux
-FROM php:8.1-fpm-alpine
+# Utilise une image PHP 8.2 avec FPM basée sur Alpine Linux
+FROM php:8.2-fpm-alpine
 
 # Installer les dépendances système et les outils nécessaires
-# (notamment postgresql-dev pour pdo_pgsql)
 RUN apk add --no-cache \
     icu-dev \
     libxml2-dev \
@@ -13,7 +12,6 @@ RUN apk add --no-cache \
     postgresql-dev
 
 # Installer les extensions PHP nécessaires
-# pdo_pgsql requiert postgresql-dev pour libpq-fe.h
 RUN docker-php-ext-install intl pdo pdo_pgsql opcache
 
 # Installer Composer en copiant l'exécutable depuis l'image officielle de Composer
