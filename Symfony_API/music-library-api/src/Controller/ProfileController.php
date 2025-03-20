@@ -13,6 +13,7 @@ use App\Repository\ArtistRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 
 class ProfileController extends AbstractController
@@ -130,13 +131,13 @@ class ProfileController extends AbstractController
             }
         }
 
-        // Gestion de l'image du song
-        /** @var UploadedFile $fileImage */
-        $fileImage = $request->files->get('image');
-        if ($fileImage instanceof UploadedFile) {
-            $newFilename = uniqid().'.'.$fileImage->guessExtension();
+        // Gestion de l'image en gardant le nom d'origine
+        if ($request->files->get('image')) {
+            /** @var UploadedFile $file */
+            $file = $request->files->get('image');
+            $newFilename = $file->getClientOriginalName();
             try {
-                $fileImage->move($this->mediaDirectory, $newFilename);
+                $file->move($this->getParameter('media_directory'), $newFilename);
                 $song->setImage($newFilename);
             } catch (FileException $e) {
                 return new JsonResponse(['error' => 'Erreur lors de l’upload de l’image'], Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -148,28 +149,27 @@ class ProfileController extends AbstractController
             }
         }
 
-        // Gestion du fichier mp3
-        /** @var UploadedFile $fileMp3 */
-        $fileMp3 = $request->files->get('file');
-        if ($fileMp3 instanceof UploadedFile) {
-            $newFilenameMp3 = uniqid().'.'.$fileMp3->guessExtension();
+        // Gestion du fichier mp3/mp4 en gardant le nom d'origine
+        if ($request->files->get('mp3')) {
+            /** @var UploadedFile $mp3File */
+            $mp3File = $request->files->get('mp3');
+            $newMp3Filename = $mp3File->getClientOriginalName(); // Correction ici
             try {
-                $fileMp3->move($this->mediaDirectory, $newFilenameMp3);
-                $song->setFileurl($newFilenameMp3);
+                $mp3File->move($this->getParameter('media_directory'), $newMp3Filename);
+                $song->setFileUrl($newMp3Filename);
             } catch (FileException $e) {
-                return new JsonResponse(['error' => 'Erreur lors de l’upload du fichier mp3'], Response::HTTP_INTERNAL_SERVER_ERROR);
+                return new JsonResponse(['error' => 'Erreur lors de l’upload du mp3'], Response::HTTP_INTERNAL_SERVER_ERROR);
             }
         } else {
-            $selectedFile = $request->request->get('file');
-            if ($selectedFile) {
-                $song->setFileurl($selectedFile);
+            $selectedMp3 = $request->request->get('mp3');
+            if ($selectedMp3) {
+                $song->setFileUrl($selectedMp3);
             }
         }
 
         $this->entityManager->flush();
         return new JsonResponse(['success' => true]);
     }
-
 
     #[Route('/profile/update/album/{id}', name: 'profile_update_album', methods: ['POST'])]
     public function updateAlbum(Request $request, int $id): JsonResponse
@@ -180,13 +180,11 @@ class ProfileController extends AbstractController
             return new JsonResponse(['error' => 'Album non trouvé ou accès non autorisé'], Response::HTTP_NOT_FOUND);
         }
         
-        // Mise à jour du titre
         $title = $request->request->get('title');
         if ($title) {
             $album->setTitle($title);
         }
         
-        // Mise à jour de la date de sortie
         $dateStr = $request->request->get('date');
         if ($dateStr) {
             try {
@@ -196,11 +194,10 @@ class ProfileController extends AbstractController
             }
         }
         
-        // Gestion de l'image
         /** @var UploadedFile $file */
         $file = $request->files->get('image');
         if ($file instanceof UploadedFile) {
-            $newFilename = uniqid() . '.' . $file->guessExtension();
+            $newFilename = $file->getClientOriginalName();
             try {
                 $file->move($this->mediaDirectory, $newFilename);
                 $album->setImage($newFilename);
@@ -210,13 +207,14 @@ class ProfileController extends AbstractController
         } else {
             $selectedImage = $request->request->get('image');
             if ($selectedImage) {
-                $album->setImage($selectedImage); // Correction ici
+                $album->setImage($selectedImage);
             }
         }
         
         $this->entityManager->flush();
         return new JsonResponse(['success' => true]);
     }
+
 
     #[Route('/profile/update/artist/{id}', name: 'profile_update_artist', methods: ['POST'])]
     public function updateArtist(Request $request, int $id): JsonResponse
@@ -227,7 +225,6 @@ class ProfileController extends AbstractController
             return new JsonResponse(['error' => 'Artiste non trouvé ou accès non autorisé'], Response::HTTP_NOT_FOUND);
         }
         
-        // Mise à jour des textes
         $name = $request->request->get('name');
         if ($name) {
             $artist->setName($name);
@@ -257,11 +254,10 @@ class ProfileController extends AbstractController
             $artist->setNationality($nationality);
         }
         
-        // Gestion de l'image
         /** @var UploadedFile $file */
         $file = $request->files->get('image');
         if ($file instanceof UploadedFile) {
-            $newFilename = uniqid() . '.' . $file->guessExtension();
+            $newFilename = $file->getClientOriginalName();
             try {
                 $file->move($this->mediaDirectory, $newFilename);
                 $artist->setImage($newFilename);

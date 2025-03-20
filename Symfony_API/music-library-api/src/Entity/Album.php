@@ -83,6 +83,7 @@ class Album
      */
     #[ORM\OneToMany(mappedBy: 'album', targetEntity: Song::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[Groups(['album:read'])]
+    #[ORM\OrderBy(["id" => "ASC"])]
     private Collection $songs;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'albumsCreated')]

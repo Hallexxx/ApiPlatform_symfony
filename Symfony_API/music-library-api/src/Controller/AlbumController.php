@@ -14,6 +14,7 @@ use App\Entity\Artist;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 class AlbumController extends AbstractController
 {
@@ -35,17 +36,14 @@ class AlbumController extends AbstractController
             $date = $request->query->get('date', '');
             $artistName = $request->query->get('artist', '');
 
-            // Récupérer tous les albums (avec les artistes et les chansons associées)
             $albums = $this->albumService->getAllAlbumsWithArtistsAndSongs();
 
             if (empty($albums)) {
                 throw $this->createNotFoundException('Aucun album trouvé.');
             }
 
-            // Récupérer TOUS les artistes de la base de données
             $artists = $this->artistService->getAllArtists();
 
-            // Organiser les albums par artiste
             $albumsWithIndexes = [];
             foreach ($albums as $album) {
                 $artistId = $album->getArtist()->getId();
@@ -73,7 +71,7 @@ class AlbumController extends AbstractController
             'search'            => $search,
             'date'              => $date,
             'artist'            => $artistName,
-            'artists'           => $artists, // Liste complète des artistes
+            'artists'           => $artists, 
             'selectedArtist'    => $artistName,
             'favoritedAlbumIds' => $favoritedAlbumIds,
         ]);
@@ -118,7 +116,7 @@ class AlbumController extends AbstractController
     {
         $user = $this->getUser();
         if (!$user) {
-           return new Response('Unauthorized', Response::HTTP_UNAUTHORIZED);
+            return new Response('Unauthorized', Response::HTTP_UNAUTHORIZED);
         }
 
         $title    = $request->request->get('title');
@@ -146,10 +144,12 @@ class AlbumController extends AbstractController
         $album->setArtist($artist);
         $album->setCreatedBy($user);
 
-        // Gestion de l'image
+        // Ici, on applique la même logique que pour l'ajout d'un artiste :
+        // On garde le nom d'origine du fichier (celui qui a été uploadé par l'utilisateur)
         $file = $request->files->get('image');
         if ($file instanceof UploadedFile) {
-            $newFilename = uniqid() . '.' . $file->guessExtension();
+            // Utiliser le nom original
+            $newFilename = $file->getClientOriginalName();
             try {
                 $file->move($this->getParameter('media_directory'), $newFilename);
                 $album->setImage($newFilename);

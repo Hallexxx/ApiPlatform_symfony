@@ -69,7 +69,6 @@ class Artist
     #[MaxDepth(1)]
     private ?string $name = null;
 
-
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
     #[Assert\Length(max: 255)]
@@ -103,6 +102,7 @@ class Artist
 
     #[ORM\OneToMany(mappedBy: 'artist', targetEntity: Album::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[Groups(['artist:read'])]
+    #[ORM\OrderBy(["id" => "ASC"])]
     private Collection $albums;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'artistsCreated')]

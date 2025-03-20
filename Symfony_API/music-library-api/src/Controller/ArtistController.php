@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use App\Entity\Artist;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 /**
  * Custom endpoints for Artist.
@@ -112,11 +113,10 @@ class ArtistController extends AbstractController
         $artist->setNationality($nationality);
         $artist->setCreatedBy($user);
     
-        // Gestion de l'image
         if ($request->files->get('image')) {
             /** @var UploadedFile $file */
             $file = $request->files->get('image');
-            $newFilename = uniqid() . '.' . $file->guessExtension();
+            $newFilename = $file->getClientOriginalName();
             try {
                 $file->move($this->getParameter('media_directory'), $newFilename);
                 $artist->setImage($newFilename);
@@ -135,7 +135,6 @@ class ArtistController extends AbstractController
     
         return new JsonResponse(['success' => true]);
     }
-
     #[Route('/artist/delete/{id}', name: 'artist_delete', methods: ['POST'])]
     public function deleteArtist(int $id): JsonResponse
     {

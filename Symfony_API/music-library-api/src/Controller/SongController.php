@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 
 class SongController extends AbstractController
@@ -115,7 +116,7 @@ class SongController extends AbstractController
         }
         $song->setLength((int)$request->request->get('length'));
 
-        // Récupérer l'album choisi
+        // Récupération de l'album choisi
         $albumId = $request->request->get('album');
         if (!$albumId) {
             return new JsonResponse(['error' => 'Veuillez sélectionner un album'], Response::HTTP_BAD_REQUEST);
@@ -126,11 +127,11 @@ class SongController extends AbstractController
         }
         $song->setAlbum($album);
 
-        // Gestion de l'image
+        // Gestion de l'image en gardant le nom d'origine
         if ($request->files->get('image')) {
             /** @var UploadedFile $file */
             $file = $request->files->get('image');
-            $newFilename = uniqid() . '.' . $file->guessExtension();
+            $newFilename = $file->getClientOriginalName();
             try {
                 $file->move($this->getParameter('media_directory'), $newFilename);
                 $song->setImage($newFilename);
@@ -144,11 +145,11 @@ class SongController extends AbstractController
             }
         }
 
-        // Gestion du mp3/mp4
+        // Gestion du fichier mp3/mp4 en gardant le nom d'origine
         if ($request->files->get('mp3')) {
             /** @var UploadedFile $mp3File */
             $mp3File = $request->files->get('mp3');
-            $newMp3Filename = uniqid() . '.' . $mp3File->guessExtension();
+            $newMp3Filename = $mp3File->getClientOriginalName(); // Correction ici
             try {
                 $mp3File->move($this->getParameter('media_directory'), $newMp3Filename);
                 $song->setFileUrl($newMp3Filename);
@@ -169,6 +170,7 @@ class SongController extends AbstractController
 
         return new JsonResponse(['success' => true]);
     }
+
     
     #[Route('/song/delete/{id}', name: 'song_delete', methods: ['POST'])]
     public function deleteSong(int $id): JsonResponse
