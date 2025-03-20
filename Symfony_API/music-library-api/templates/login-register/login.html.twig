@@ -175,93 +175,92 @@
             }
         </style>
     </head>
-     <body>
-    <nav class="navbar navbar-expand-lg navbar-dark">
-      <div class="container">
-        <a class="navbar-brand" href="{{ path('music_library') }}">Music Library</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav mx-auto">
-            <li class="nav-item"><a class="nav-link" href="{{ path('artist_page') }}">Artists</a></li>
-            <li class="nav-item"><a class="nav-link" href="{{ path('album_page') }}">Albums</a></li>
-            <li class="nav-item"><a class="nav-link" href="{{ path('song_page') }}">Songs</a></li>
-          </ul>
-          <!-- Zone d'affichage du status utilisateur -->
-          <span id="userStatus" style="color:#fff; margin-left:20px;"></span>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ path('music_library') }}">Music Library</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item"><a class="nav-link" href="{{ path('artist_page') }}">Artists</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ path('album_page') }}">Albums</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ path('song_page') }}">Songs</a></li>
+            </ul>
+            <span id="userStatus" style="color:#fff; margin-left:20px;"></span>
+            </div>
         </div>
-      </div>
-    </nav>
+        </nav>
 
-    <section>
-      <div class="container_login animate__animated animate__fadeIn">
-        <div class="image-section"></div>
-        <div class="form-section">
-          <h1>Connexion</h1>
-          <form id="loginForm">
-            <label for="email">Email :</label>
-            <input type="email" id="email" name="email" required>
-            <label for="password">Mot de passe :</label>
-            <input type="password" id="password" name="password" required>
-            <button type="submit">Se connecter</button>
-          </form>
-          <div id="loginMessage" style="margin-top: 20px;"></div>
+        <section>
+        <div class="container_login animate__animated animate__fadeIn">
+            <div class="image-section"></div>
+            <div class="form-section">
+            <h1>Connexion</h1>
+            <form id="loginForm">
+                <label for="email">Email :</label>
+                <input type="email" id="email" name="email" required>
+                <label for="password">Mot de passe :</label>
+                <input type="password" id="password" name="password" required>
+                <button type="submit">Se connecter</button>
+            </form>
+            <div id="loginMessage" style="margin-top: 20px;"></div>
+            </div>
         </div>
-      </div>
-    </section>
+        </section>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.10.4/gsap.min.js"></script>
-    <script>
-        gsap.from(".form-section", { duration: 1, x: 100, opacity: 0, ease: "power3.out" });
-        gsap.from(".image-section", { duration: 1, x: -100, opacity: 0, ease: "power3.out", delay: 0.5 });
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.10.4/gsap.min.js"></script>
+        <script>
+            gsap.from(".form-section", { duration: 1, x: 100, opacity: 0, ease: "power3.out" });
+            gsap.from(".image-section", { duration: 1, x: -100, opacity: 0, ease: "power3.out", delay: 0.5 });
 
-        function updateUserStatus() {
-            const token = localStorage.getItem('token');
-            const userStatus = document.getElementById('userStatus');
-            if (token) {
-                userStatus.textContent = "Connecté";
-            } else {
-                userStatus.textContent = "Non connecté";
-            }
-        }
-
-        updateUserStatus();
-
-        document.getElementById('loginForm').addEventListener('submit', async function(e) {
-          e.preventDefault();
-          const email = document.getElementById('email').value;
-          const password = document.getElementById('password').value;
-          const data = { email, password };
-
-            try {
-                const response = await fetch('/auth', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
-                if (response.ok) {
-                    const result = await response.json();
-                    localStorage.setItem('token', result.token);
-                    updateUserStatus();
-                    document.getElementById('loginMessage').textContent = "Connexion réussie ! Bienvenue.";
-                    window.location.href = '/';
+            function updateUserStatus() {
+                const token = localStorage.getItem('token');
+                const userStatus = document.getElementById('userStatus');
+                if (token) {
+                    userStatus.textContent = "Connecté";
                 } else {
-                    const errorText = await response.text();
-                    document.getElementById('loginMessage').textContent = "Erreur de connexion : " + errorText;
+                    userStatus.textContent = "Non connecté";
                 }
-            } catch (error) {
-                console.error('Erreur lors de la soumission du formulaire :', error);
-                document.getElementById('loginMessage').textContent = "Erreur lors de la connexion.";
             }
-        });
-    </script>
 
-    <footer>
-      &copy; 2024 Bibliothèque Musicale | Tous droits réservés.
-    </footer>
-  </body>
+            updateUserStatus();
+
+            document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const data = { email, password };
+
+                try {
+                    const response = await fetch('/auth', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+                    if (response.ok) {
+                        const result = await response.json();
+                        localStorage.setItem('token', result.token);
+                        updateUserStatus();
+                        document.getElementById('loginMessage').textContent = "Connexion réussie ! Bienvenue.";
+                        window.location.href = '/';
+                    } else {
+                        const errorText = await response.text();
+                        document.getElementById('loginMessage').textContent = "Erreur de connexion : " + errorText;
+                    }
+                } catch (error) {
+                    console.error('Erreur lors de la soumission du formulaire :', error);
+                    document.getElementById('loginMessage').textContent = "Erreur lors de la connexion.";
+                }
+            });
+        </script>
+
+        <footer>
+            &copy; 2024 Bibliothèque Musicale | Tous droits réservés.
+        </footer>
+    </body>
 </html>

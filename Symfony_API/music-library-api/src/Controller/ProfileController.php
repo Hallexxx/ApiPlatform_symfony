@@ -116,7 +116,7 @@ class ProfileController extends AbstractController
         // Mise à jour de la durée (en secondes)
         $duration = $request->request->get('duration');
         if ($duration) {
-            $song->setLengthInMinutes($duration);
+            $song->setLength($duration);
         }
 
         // Mise à jour de l'album (id envoyé via le select)
@@ -269,9 +269,9 @@ class ProfileController extends AbstractController
                 return new JsonResponse(['error' => 'Erreur lors de l’upload du fichier'], Response::HTTP_INTERNAL_SERVER_ERROR);
             }
         } else {
-            $selectedImage = $request->request->get('image');
-            if ($selectedImage) {
-                $artist->setImage($selectedImage); // Correction ici
+            $selectedImage = trim($request->request->get('image'));
+            if ($selectedImage && $selectedImage !== "Aucun fichier choisi") {
+                $artist->setImage($selectedImage);
             }
         }
         

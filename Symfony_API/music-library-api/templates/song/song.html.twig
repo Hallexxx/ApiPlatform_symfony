@@ -750,7 +750,7 @@
                     fetch('/media-list/mp3')
                     .then(response => {
                         if (!response.ok) {
-                        throw new Error("HTTP error " + response.status);
+                            throw new Error("HTTP error " + response.status);
                         }
                         return response.json();
                     })
@@ -758,34 +758,34 @@
                         const container = document.getElementById('mp3-media-library-container');
                         let mediaHtml = '<div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">';
                         mp3files.forEach(file => {
-                        mediaHtml += `<div class="mp3-file" style="cursor:pointer; padding:5px; border:1px solid #fff; border-radius:5px;">${file}</div>`;
+                            mediaHtml += `<div class="mp3-file" style="cursor:pointer; padding:5px; border:1px solid #fff; border-radius:5px;">${file}</div>`;
                         });
                         mediaHtml += '</div>';
                         mediaHtml += `
-                        <div style="display: flex; justify-content: center; gap: 10px; margin-top: 10px;">
-                            <button type="button" id="mp3-media-valider" class="btn btn-success" style="max-width: 150px;">Valider</button>
-                            <button type="button" id="mp3-media-annuler" class="btn btn-secondary" style="max-width: 150px;">Annuler</button>
-                        </div>
+                            <div style="display: flex; justify-content: center; gap: 10px; margin-top: 10px;">
+                                <button type="button" id="mp3-media-valider" class="btn btn-success" style="max-width: 150px;">Valider</button>
+                                <button type="button" id="mp3-media-annuler" class="btn btn-secondary" style="max-width: 150px;">Annuler</button>
+                            </div>
                         `;
                         container.innerHTML = mediaHtml;
                         container.style.display = 'block';
                         let selectedMp3 = null;
                         container.querySelectorAll('.mp3-file').forEach(div => {
-                        div.addEventListener('click', function() {
-                            container.querySelectorAll('.mp3-file').forEach(i => i.style.borderColor = "#fff");
-                            this.style.borderColor = "#28a745";
-                            selectedMp3 = this.textContent;
-                        });
+                            div.addEventListener('click', function() {
+                                container.querySelectorAll('.mp3-file').forEach(i => i.style.borderColor = "#fff");
+                                this.style.borderColor = "#28a745";
+                                selectedMp3 = this.textContent;
+                            });
                         });
                         document.getElementById('mp3-media-valider').addEventListener('click', () => {
-                        container.style.display = 'none';
-                        const mp3FileNameDisplay = document.getElementById('mp3-file-name-display');
-                        if (selectedMp3) {
-                            mp3FileNameDisplay.textContent = selectedMp3;
-                        }
+                            container.style.display = 'none';
+                            const mp3FileNameDisplay = document.getElementById('mp3-file-name-display');
+                            if (selectedMp3) {
+                                mp3FileNameDisplay.textContent = selectedMp3;
+                            }
                         });
                         document.getElementById('mp3-media-annuler').addEventListener('click', () => {
-                        container.style.display = 'none';
+                            container.style.display = 'none';
                         });
                     })
                     .catch(err => {
@@ -793,11 +793,11 @@
                         Swal.fire('Erreur', 'Impossible de charger la médiathèque mp3/mp4', 'error');
                     });
                 }
-                }
+            }
 
-                document.addEventListener('DOMContentLoaded', () => {
+            document.addEventListener('DOMContentLoaded', () => {
                 new SongAdder();
-                });
+            });
         </script>
     </body>
 </html>
